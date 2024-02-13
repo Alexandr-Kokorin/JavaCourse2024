@@ -1,86 +1,58 @@
 package edu.java.bot;
 
+import edu.java.bot.commands.Command;
+import edu.java.bot.commands.Help;
+import edu.java.bot.commands.ListOfLinks;
+import edu.java.bot.commands.Start;
+import edu.java.bot.commands.Track;
+import edu.java.bot.commands.Untrack;
 import edu.java.bot.configuration.MessageDatabase;
 import edu.java.bot.states.DialogState;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DialogManager {
 
-    public List<String> sortMessage(long id, String text) {
-        if (text.startsWith("/")) {
-            return sortCommand(id, text);
+    public List<String> sortMessage(long id, String message) {
+        if (message.startsWith("/")) {
+            return sortCommand(id, message);
         } else {
-            return sortText(id, text);
+            return sortText(id, message);
         }
     }
 
-    private List<String> sortCommand(long id, String text) {
+    private List<String> sortCommand(long id, String message) {
         // Проверка состояния на NONE, да - дальше, нет - заглушку
-        return switch (text) {
-            case "/start" -> startCommandProcessingPart1(id);
-            case "/help" -> helpCommandProcessing(id);
-            case "/track" -> trackCommandProcessingPart1(id);
-            case "/untrack" -> untrackCommandProcessingPart1(id);
-            case "/list" -> listCommandProcessing(id);
-            default -> List.of(MessageDatabase.unidentifiedMessage);
+        Command command = switch (message) {
+            case "/start" -> new Start(id, message);
+            case "/help" -> new Help(id, message);
+            case "/track" -> new Track(id, message);
+            case "/untrack" -> new Untrack(id, message);
+            case "/list" -> new ListOfLinks(id, message);
+            default -> null;
         };
+        if (Objects.isNull(command)) {
+            return List.of(MessageDatabase.unidentifiedMessage);
+        } else {
+            return command.execute();
+        }
     }
 
-    private List<String> startCommandProcessingPart1(long id) {
-        // Добавить в базу пользователя с заглушками и изменить сотояние диалога
-        // dialogState = START
-        return List.of(MessageDatabase.startMessagePart1, MessageDatabase.startMessagePart2);
-    }
-
-    private List<String> trackCommandProcessingPart1(long id) {
-        // dialogState = TRACK
-        return List.of(MessageDatabase.trackMessagePart1);
-    }
-
-    private List<String> untrackCommandProcessingPart1(long id) {
-        // dialogState = UNTRACK
-        return List.of(MessageDatabase.untrackMessagePart1);
-    }
-
-    private List<String> helpCommandProcessing(long id) {
-        return List.of(MessageDatabase.helpMessage);
-    }
-
-    private List<String> listCommandProcessing(long id) {
-        // Запрашиваем список из базы и выводим либо список, либо заглушку
-        return List.of(MessageDatabase.emptyListMessage);
-    }
-
-    private List<String> sortText(long id, String text) {
+    private List<String> sortText(long id, String message) {
         // Достаем состояние из базы
         DialogState state = DialogState.NONE;
-        return switch (state) {
-            case START -> startCommandProcessingPart2(id, text);
-            case TRACK -> trackCommandProcessingPart2(id, text);
-            case UNTRACK -> untrackCommandProcessingPart2(id, text);
-            default -> List.of(MessageDatabase.gagMessage);
+        Command command =  switch (state) {
+            case START -> new Start(id, message);
+            case TRACK -> new Track(id, message);
+            case UNTRACK -> new Untrack(id, message);
+            default -> null;
         };
-    }
-
-    private List<String> startCommandProcessingPart2(long id, String text) {
-        // Добавить в базу имя пользователя и изменить сотояние диалога
-        // dialogState = NONE
-        return List.of(MessageDatabase.startMessagePart3 + text + MessageDatabase.startMessagePart4);
-    }
-
-    private List<String> trackCommandProcessingPart2(long id, String text) {
-        // Проверить правильность ссылки, правильно - дальше, нет заглушку
-        // Добавить в базу ссылку и изменить сотояние диалога
-        // dialogState = NONE
-        return List.of(MessageDatabase.trackMessagePart2);
-    }
-
-    private List<String> untrackCommandProcessingPart2(long id, String text) {
-        // Проверить наличие ссылки, правильно - дальше, нет заглушку
-        // Удалить из базы ссылку и изменить сотояние диалога
-        // dialogState = NONE
-        return List.of(MessageDatabase.untrackMessagePart2);
+        if (Objects.isNull(command)) {
+            return List.of(MessageDatabase.gagMessage);
+        } else {
+            return command.execute();
+        }
     }
 }

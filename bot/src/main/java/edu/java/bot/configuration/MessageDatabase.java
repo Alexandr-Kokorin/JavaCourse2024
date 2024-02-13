@@ -1,9 +1,7 @@
 package edu.java.bot.configuration;
 
-@SuppressWarnings("LineLength")
+@SuppressWarnings({"LineLength", "HideUtilityClassConstructor"})
 public class MessageDatabase {
-
-    private MessageDatabase() {}
 
     public static String unidentifiedMessage = "То, что ты прислал, не моих рук дело, и во владениях моих такого нет!";
     public static String gagMessage = "Я ещё работаю над этим, не мешай!";
