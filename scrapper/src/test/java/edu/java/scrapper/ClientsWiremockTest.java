@@ -7,7 +7,7 @@ import edu.java.scrapper.clients.githubDTO.Repository;
 import edu.java.scrapper.clients.stackoverflowDTO.Item;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import java.time.OffsetDateTime;
 import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
