@@ -1,4 +1,4 @@
-package edu.java.clients.stackoverflowDTO;
+package edu.java.scrapper.clients.stackoverflowDTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;

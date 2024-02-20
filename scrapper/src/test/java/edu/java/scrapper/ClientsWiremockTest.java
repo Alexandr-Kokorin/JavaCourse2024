@@ -1,11 +1,11 @@
 package edu.java.scrapper;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import edu.java.clients.GitHubClient;
-import edu.java.clients.StackOverflowClient;
-import edu.java.clients.githubDTO.Repository;
-import edu.java.clients.stackoverflowDTO.Item;
-import edu.java.clients.stackoverflowDTO.Question;
+import edu.java.scrapper.clients.GitHubClient;
+import edu.java.scrapper.clients.StackOverflowClient;
+import edu.java.scrapper.clients.githubDTO.Repository;
+import edu.java.scrapper.clients.stackoverflowDTO.Item;
+import edu.java.scrapper.clients.stackoverflowDTO.Question;
 import org.junit.Rule;
 import org.junit.Test;
 import java.time.OffsetDateTime;

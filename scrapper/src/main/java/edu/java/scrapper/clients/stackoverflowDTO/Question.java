@@ -1,4 +1,4 @@
-package edu.java.clients.stackoverflowDTO;
+package edu.java.scrapper.clients.stackoverflowDTO;
 
 import java.util.List;
 

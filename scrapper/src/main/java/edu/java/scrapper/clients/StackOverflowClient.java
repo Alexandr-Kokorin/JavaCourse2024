@@ -1,6 +1,6 @@
-package edu.java.clients;
+package edu.java.scrapper.clients;
 
-import edu.java.clients.stackoverflowDTO.Question;
+import edu.java.scrapper.clients.stackoverflowDTO.Question;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
