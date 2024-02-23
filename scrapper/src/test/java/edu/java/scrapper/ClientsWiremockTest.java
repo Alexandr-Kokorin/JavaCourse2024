@@ -1,29 +1,30 @@
 package edu.java.scrapper;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import edu.java.scrapper.clients.GitHubClient;
 import edu.java.scrapper.clients.StackOverflowClient;
 import edu.java.scrapper.clients.githubDTO.Repository;
 import edu.java.scrapper.clients.stackoverflowDTO.Item;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import java.time.OffsetDateTime;
 import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@WireMockTest
 public class ClientsWiremockTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(80));
+    @RegisterExtension
+    public static WireMockExtension extension = WireMockExtension.newInstance().options(wireMockConfig().port(80)).build();
 
     @Test
     public void gitHubTest() {
@@ -38,7 +39,7 @@ public class ClientsWiremockTest {
 
     private void configStubGitHub() {
         configureFor("localhost", 80);
-        stubFor(get(urlEqualTo("/repos/user/test"))
+        extension.stubFor(get(urlEqualTo("/repos/user/test"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
@@ -71,7 +72,7 @@ public class ClientsWiremockTest {
 
     private void configStubStackOverflow() {
         configureFor("localhost", 80);
-        stubFor(get(urlEqualTo("/2.3/questions/1/answers?site=stackoverflow&filter=withbody"))
+        extension.stubFor(get(urlEqualTo("/2.3/questions/1/answers?site=stackoverflow&filter=withbody"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
