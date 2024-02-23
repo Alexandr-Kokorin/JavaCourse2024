@@ -9,6 +9,7 @@ import edu.java.scrapper.clients.stackoverflowDTO.Item;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.test.annotation.DirtiesContext;
 import java.time.OffsetDateTime;
 import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -27,6 +28,7 @@ public class ClientsWiremockTest {
     public static WireMockExtension extension = WireMockExtension.newInstance().options(wireMockConfig().port(80)).build();
 
     @Test
+    @DirtiesContext
     public void gitHubTest() {
         configStubGitHub();
         var repository = new Repository("test", OffsetDateTime.parse("2023-09-13T21:17:36Z"),
@@ -56,6 +58,7 @@ public class ClientsWiremockTest {
     }
 
     @Test
+    @DirtiesContext
     public void stackOverflowTest() {
         configStubStackOverflow();
         var question = new Question(
