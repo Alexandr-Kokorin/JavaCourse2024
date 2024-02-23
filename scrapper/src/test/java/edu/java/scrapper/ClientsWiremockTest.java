@@ -9,11 +9,9 @@ import edu.java.scrapper.clients.stackoverflowDTO.Item;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.test.annotation.DirtiesContext;
 import java.time.OffsetDateTime;
 import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -25,22 +23,20 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ClientsWiremockTest {
 
     @RegisterExtension
-    public static WireMockExtension extension = WireMockExtension.newInstance().options(wireMockConfig().port(80)).build();
+    public static WireMockExtension extension = WireMockExtension.newInstance().options(wireMockConfig().port(8888)).build();
 
     @Test
-    @DirtiesContext
     public void gitHubTest() {
         configStubGitHub();
         var repository = new Repository("test", OffsetDateTime.parse("2023-09-13T21:17:36Z"),
             OffsetDateTime.parse("2024-02-18T10:28:37Z"), OffsetDateTime.parse("2024-01-31T22:21:31Z"));
 
-        var response = new GitHubClient("localhost").getRepositoryInfo("user", "test").block();
+        var response = new GitHubClient("http://localhost:8888").getRepositoryInfo("user", "test").block();
 
         assertThat(response).isEqualTo(repository);
     }
 
     private void configStubGitHub() {
-        configureFor("localhost", 80);
         extension.stubFor(get(urlEqualTo("/repos/user/test"))
             .willReturn(
                 aResponse()
@@ -58,7 +54,6 @@ public class ClientsWiremockTest {
     }
 
     @Test
-    @DirtiesContext
     public void stackOverflowTest() {
         configStubStackOverflow();
         var question = new Question(
@@ -68,13 +63,12 @@ public class ClientsWiremockTest {
             )
         );
 
-        var response = new StackOverflowClient("localhost").getQuestionInfo(1).block();
+        var response = new StackOverflowClient("http://localhost:8888").getQuestionInfo(1).block();
 
         assertThat(response).isEqualTo(question);
     }
 
     private void configStubStackOverflow() {
-        configureFor("localhost", 80);
         extension.stubFor(get(urlEqualTo("/2.3/questions/1/answers?site=stackoverflow&filter=withbody"))
             .willReturn(
                 aResponse()
