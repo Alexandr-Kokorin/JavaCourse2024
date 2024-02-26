@@ -9,7 +9,7 @@ public class GitHubClient {
     private final WebClient webClient;
 
     public GitHubClient() {
-        this.webClient = WebClient.builder().baseUrl("https://api.GitHub.com").build();
+        this.webClient = WebClient.builder().baseUrl("https://api.github.com").build();
     }
 
     public GitHubClient(String baseUrl) {
