@@ -1,12 +1,10 @@
-package edu.java.scrapper;
+package edu.java.scrapper.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.scrapper.clients.GitHubClient;
-import edu.java.scrapper.clients.StackOverflowClient;
-import edu.java.scrapper.clients.githubDTO.Repository;
 import edu.java.scrapper.clients.stackoverflowDTO.Item;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import java.time.OffsetDateTime;
@@ -20,34 +18,18 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @WireMockTest
-public class ClientsWiremockTest {
+public class StackOverflowClientTest {
 
     @RegisterExtension
     public static WireMockExtension extension = WireMockExtension.newInstance().options(wireMockConfig().port(8888)).build();
 
-    @Test
-    public void gitHubTest() {
-        configStubGitHub();
-        var repository = new Repository("test", OffsetDateTime.parse("2023-09-13T21:17:36Z"),
-            OffsetDateTime.parse("2024-02-18T10:28:37Z"), OffsetDateTime.parse("2024-01-31T22:21:31Z"));
-
-        var response = new GitHubClient("http://localhost:8888").getRepositoryInfo("user", "test").block();
-
-        assertThat(response).isEqualTo(repository);
-    }
-
-    private void configStubGitHub() {
-        extension.stubFor(get(urlEqualTo("/repos/user/test"))
+    @BeforeEach
+    public void configStubStackOverflow() {
+        extension.stubFor(get(urlEqualTo("/2.3/questions/1/answers?site=stackoverflow&filter=withbody"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
-                    .withBody("""
-                        {
-                          "name": "test",
-                          "created_at": "2023-09-13T21:17:36Z",
-                          "updated_at": "2024-02-18T10:28:37Z",
-                          "pushed_at": "2024-01-31T22:21:31Z"
-                        }""")
+                    .withBody("{\"items\":[{\"last_activity_date\":1419446677,\"last_edit_date\":1419446677,\"creation_date\":1323796809,\"answer_id\":8493347}]}")
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
             )
         );
@@ -55,7 +37,6 @@ public class ClientsWiremockTest {
 
     @Test
     public void stackOverflowTest() {
-        configStubStackOverflow();
         var question = new Question(
             List.of(
                 new Item(OffsetDateTime.parse("2014-12-24T18:44:37Z"), OffsetDateTime.parse("2014-12-24T18:44:37Z"),
@@ -66,16 +47,5 @@ public class ClientsWiremockTest {
         var response = new StackOverflowClient("http://localhost:8888").getQuestionInfo(1).block();
 
         assertThat(response).isEqualTo(question);
-    }
-
-    private void configStubStackOverflow() {
-        extension.stubFor(get(urlEqualTo("/2.3/questions/1/answers?site=stackoverflow&filter=withbody"))
-            .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withBody("{\"items\":[{\"last_activity_date\":1419446677,\"last_edit_date\":1419446677,\"creation_date\":1323796809,\"answer_id\":8493347}]}")
-                    .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-            )
-        );
     }
 }
