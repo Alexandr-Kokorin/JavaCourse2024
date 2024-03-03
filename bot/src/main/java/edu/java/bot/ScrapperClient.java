@@ -4,10 +4,11 @@ import edu.java.scrapper.api.dto.AddLinkRequest;
 import edu.java.scrapper.api.dto.LinkResponse;
 import edu.java.scrapper.api.dto.ListLinksResponse;
 import edu.java.scrapper.api.dto.RemoveLinkRequest;
+import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
-import java.net.URI;
 
+@SuppressWarnings("MultipleStringLiterals")
 public class ScrapperClient {
 
     private final RestClient restClient;
