@@ -1,6 +1,6 @@
 package edu.java.bot.api;
 
-import edu.java.bot.api.dto.ApiErrorResponse;
+import edu.java.scrapper.api.dto.ApiErrorResponse;
 import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +16,7 @@ public class BotExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ApiErrorResponse(
                 "Некорректные параметры запроса",
+                "400",
                 e.getCause().toString(),
                 e.getMessage(),
                 (String[]) Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray())

@@ -1,8 +1,8 @@
 package edu.java.bot.api;
 
 import edu.java.bot.GodOfLinks;
-import edu.java.bot.api.dto.ApiErrorResponse;
-import edu.java.bot.api.dto.LinkUpdate;
+import edu.java.scrapper.api.dto.ApiErrorResponse;
+import edu.java.scrapper.api.dto.LinkUpdate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
