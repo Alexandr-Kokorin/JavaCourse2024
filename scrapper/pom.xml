@@ -123,6 +123,12 @@
             <artifactId>kafka</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>edu.java</groupId>
+            <artifactId>models</artifactId>
+            <version>${revision}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

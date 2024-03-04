@@ -1,6 +1,6 @@
 package edu.java.bot.api;
 
-import edu.java.scrapper.api.dto.ApiErrorResponse;
+import edu.java.dto.ApiErrorResponse;
 import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,9 +1,9 @@
 package edu.java.bot;
 
-import edu.java.scrapper.api.dto.AddLinkRequest;
-import edu.java.scrapper.api.dto.LinkResponse;
-import edu.java.scrapper.api.dto.ListLinksResponse;
-import edu.java.scrapper.api.dto.RemoveLinkRequest;
+import edu.java.dto.AddLinkRequest;
+import edu.java.dto.LinkResponse;
+import edu.java.dto.ListLinksResponse;
+import edu.java.dto.RemoveLinkRequest;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;

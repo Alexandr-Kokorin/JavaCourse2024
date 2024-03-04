@@ -1,10 +1,10 @@
 package edu.java.scrapper.api;
 
-import edu.java.scrapper.api.dto.AddLinkRequest;
-import edu.java.scrapper.api.dto.ApiErrorResponse;
-import edu.java.scrapper.api.dto.LinkResponse;
-import edu.java.scrapper.api.dto.ListLinksResponse;
-import edu.java.scrapper.api.dto.RemoveLinkRequest;
+import edu.java.dto.AddLinkRequest;
+import edu.java.dto.ApiErrorResponse;
+import edu.java.dto.LinkResponse;
+import edu.java.dto.ListLinksResponse;
+import edu.java.dto.RemoveLinkRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,6 +1,6 @@
 package edu.java.scrapper;
 
-import edu.java.scrapper.api.dto.LinkUpdate;
+import edu.java.dto.LinkUpdate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 

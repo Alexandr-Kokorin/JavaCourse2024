@@ -1,4 +1,4 @@
-package edu.java.scrapper.api.dto;
+package edu.java.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 
