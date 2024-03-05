@@ -1,16 +1,17 @@
 package edu.java.scrapper.api;
 
-import edu.java.dto.AddLinkRequest;
 import edu.java.dto.ApiErrorResponse;
+import edu.java.dto.LinkRequest;
 import edu.java.dto.LinkResponse;
 import edu.java.dto.ListLinksResponse;
-import edu.java.dto.RemoveLinkRequest;
+import edu.java.dto.StateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,6 +66,37 @@ public class ScrapperController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Получить состояние диалога")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",
+                     description = "Состояние успешно получено"),
+        @ApiResponse(responseCode = "400",
+                     description = "Некорректные параметры запроса",
+                     content = @Content(mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping(path = "/state/{id}")
+    public ResponseEntity<StateResponse> getState(@Positive @PathVariable long id) {
+        // Достать состояние из БД и вернуть в ответе
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Изменить состояние диалога")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",
+                     description = "Состояние успешно изменено"),
+        @ApiResponse(responseCode = "400",
+                     description = "Некорректные параметры запроса",
+                     content = @Content(mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PostMapping(path = "/state/{id}")
+    public ResponseEntity<Void> updateState(@Positive @PathVariable long id,
+                                            @NotEmpty @RequestHeader("State") String state) {
+        // Обновить состояние в БД
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Получить все отслеживаемые ссылки")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200",
@@ -93,9 +125,9 @@ public class ScrapperController {
                      content = @Content(mediaType = "application/json",
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @PostMapping(path = "/links")
+    @PostMapping(path = "/links/add")
     public ResponseEntity<LinkResponse> addLink(@Positive @RequestHeader("Tg-Chat-Id") long id,
-                                                @Valid @RequestBody AddLinkRequest addLinkRequest) {
+                                                @Valid @RequestBody LinkRequest linkRequest) {
         // Добавить ссылку в БД
         return ResponseEntity.ok().build();
     }
@@ -117,7 +149,7 @@ public class ScrapperController {
     })
     @PostMapping(path = "/links/delete")
     public ResponseEntity<LinkResponse> deleteLink(@Positive @RequestHeader("Tg-Chat-Id") long id,
-                                                   @Valid @RequestBody RemoveLinkRequest removeLinkRequest) {
+                                                   @Valid @RequestBody LinkRequest linkRequest) {
         // Удалить ссылку из БД
         return ResponseEntity.ok().build();
     }
