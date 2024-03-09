@@ -13,3 +13,7 @@ server:
 
 logging:
   config: classpath:log4j2-plain.xml
+
+spring-doc:
+  swagger-ui:
+    path: /swagger-ui

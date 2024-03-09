@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BotApplication {
 
     @Autowired
-    public static GodOfLinks bot;
+    private GodOfLinks bot;
 
     public static void main(String[] args) {
         SpringApplication.run(BotApplication.class, args);
