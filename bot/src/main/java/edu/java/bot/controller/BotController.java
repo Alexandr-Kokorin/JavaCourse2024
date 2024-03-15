@@ -1,4 +1,4 @@
-package edu.java.bot.api;
+package edu.java.bot.controller;
 
 import edu.java.bot.GodOfLinks;
 import edu.java.dto.ApiErrorResponse;

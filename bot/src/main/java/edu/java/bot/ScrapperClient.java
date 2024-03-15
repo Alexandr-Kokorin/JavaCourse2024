@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.java.bot.states.DialogState;
 import edu.java.dto.LinkRequest;
-import edu.java.dto.LinkResponse;
 import edu.java.dto.ListLinksResponse;
 import edu.java.dto.StateResponse;
 import java.net.URI;
@@ -24,8 +23,8 @@ public class ScrapperClient {
         this.restClient = RestClient.builder().baseUrl(baseUrl).build();
     }
 
-    public ResponseEntity<Void> addTgChat(long id) {
-        return restClient.post().uri("/tg-chat/{id}", id).retrieve().toBodilessEntity();
+    public ResponseEntity<Void> addTgChat(long id, String name) {
+        return restClient.post().uri("/tg-chat/{id}", id).header("Name", name).retrieve().toBodilessEntity();
     }
 
     public ResponseEntity<Void> deleteTgChat(long id) {
@@ -46,13 +45,13 @@ public class ScrapperClient {
             .retrieve().toEntity(ListLinksResponse.class);
     }
 
-    public ResponseEntity<LinkResponse> addLink(long id, URI link) throws JsonProcessingException {
+    public ResponseEntity<Void> addLink(long id, URI link) throws JsonProcessingException {
         return restClient.post().uri("/links/add").header("Tg-Chat-Id", String.valueOf(id))
-            .body(new ObjectMapper().writeValueAsString(new LinkRequest(link))).retrieve().toEntity(LinkResponse.class);
+            .body(new ObjectMapper().writeValueAsString(new LinkRequest(link))).retrieve().toBodilessEntity();
     }
 
-    public ResponseEntity<LinkResponse> deleteLink(long id, URI link) throws JsonProcessingException {
+    public ResponseEntity<Void> deleteLink(long id, URI link) throws JsonProcessingException {
         return restClient.post().uri("/links/delete").header("Tg-Chat-Id", String.valueOf(id))
-            .body(new ObjectMapper().writeValueAsString(new LinkRequest(link))).retrieve().toEntity(LinkResponse.class);
+            .body(new ObjectMapper().writeValueAsString(new LinkRequest(link))).retrieve().toBodilessEntity();
     }
 }

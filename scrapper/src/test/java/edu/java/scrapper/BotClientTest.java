@@ -38,7 +38,7 @@ public class BotClientTest {
         var expected = ResponseEntity.ok().build().getStatusCode();
 
         var response = new BotClient("http://localhost:8888")
-            .sendUpdates(new LinkUpdate(1, new URI("http://test"), "test", new long[]{1, 2}))
+            .sendUpdates(new LinkUpdate(new URI("http://test"), "test", new long[]{1, 2}))
             .getStatusCode();
 
         assertThat(response).isEqualTo(expected);
