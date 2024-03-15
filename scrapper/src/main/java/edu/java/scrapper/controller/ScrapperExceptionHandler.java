@@ -1,4 +1,4 @@
-package edu.java.scrapper.api;
+package edu.java.scrapper.controller;
 
 import edu.java.dto.ApiErrorResponse;
 import java.util.Arrays;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 
-@RestControllerAdvice(basePackages = {"edu.java.scrapper.api"})
+@RestControllerAdvice(basePackages = {"edu.java.scrapper.controller"})
 public class ScrapperExceptionHandler {
 
     @ExceptionHandler(BindException.class)
@@ -30,6 +30,18 @@ public class ScrapperExceptionHandler {
             .body(new ApiErrorResponse(
                 "Не найдено",
                 "404",
+                e.getCause().toString(),
+                e.getMessage(),
+                (String[]) Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray())
+            );
+    }
+
+    @ExceptionHandler(HttpClientErrorException.Conflict.class)
+    public ResponseEntity<ApiErrorResponse> conflictException(HttpClientErrorException.Conflict e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(new ApiErrorResponse(
+                "Уже существует",
+                "409",
                 e.getCause().toString(),
                 e.getMessage(),
                 (String[]) Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray())

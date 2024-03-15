@@ -1,4 +1,4 @@
-package edu.java.bot.api;
+package edu.java.bot.controller;
 
 import edu.java.dto.ApiErrorResponse;
 import java.util.Arrays;
@@ -8,7 +8,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(basePackages = {"edu.java.bot.api"})
+@RestControllerAdvice(basePackages = {"edu.java.bot.controller"})
 public class BotExceptionHandler {
 
     @ExceptionHandler(BindException.class)

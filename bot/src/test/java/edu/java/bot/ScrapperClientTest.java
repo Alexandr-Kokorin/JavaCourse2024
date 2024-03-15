@@ -106,11 +106,6 @@ public class ScrapperClientTest {
             .willReturn(
                 aResponse()
                     .withStatus(200)
-                    .withBody("""
-                        {
-                          "id": 1,
-                          "url": "http://test"
-                        }""")
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
             )
         );
@@ -121,11 +116,6 @@ public class ScrapperClientTest {
             .willReturn(
                 aResponse()
                     .withStatus(200)
-                    .withBody("""
-                        {
-                          "id": 1,
-                          "url": "http://test"
-                        }""")
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
             )
         );
@@ -135,7 +125,7 @@ public class ScrapperClientTest {
     public void addTgChatTest() {
         var expected = ResponseEntity.ok().build().getStatusCode();
 
-        var response = new ScrapperClient("http://localhost:8888").addTgChat(1).getStatusCode();
+        var response = new ScrapperClient("http://localhost:8888").addTgChat(1, "name").getStatusCode();
 
         assertThat(response).isEqualTo(expected);
     }
@@ -178,18 +168,18 @@ public class ScrapperClientTest {
 
     @Test
     public void addLinkTest() throws URISyntaxException, JsonProcessingException {
-        var expected = ResponseEntity.ok(new LinkResponse(1, new URI("http://test"))).getBody();
+        var expected = ResponseEntity.ok().build().getStatusCode();
 
-        var response = new ScrapperClient("http://localhost:8888").addLink(1, new URI("http://test")).getBody();
+        var response = new ScrapperClient("http://localhost:8888").addLink(1, new URI("http://test")).getStatusCode();
 
         assertThat(response).isEqualTo(expected);
     }
 
     @Test
     public void deleteLinkTest() throws URISyntaxException, JsonProcessingException {
-        var expected = ResponseEntity.ok(new LinkResponse(1, new URI("http://test"))).getBody();
+        var expected = ResponseEntity.ok().build().getStatusCode();
 
-        var response = new ScrapperClient("http://localhost:8888").deleteLink(1, new URI("http://test")).getBody();
+        var response = new ScrapperClient("http://localhost:8888").deleteLink(1, new URI("http://test")).getStatusCode();
 
         assertThat(response).isEqualTo(expected);
     }

@@ -1,10 +1,11 @@
-package edu.java.scrapper.api;
+package edu.java.scrapper.controller;
 
 import edu.java.dto.ApiErrorResponse;
 import edu.java.dto.LinkRequest;
-import edu.java.dto.LinkResponse;
 import edu.java.dto.ListLinksResponse;
 import edu.java.dto.StateResponse;
+import edu.java.scrapper.service.ChatService;
+import edu.java.scrapper.service.LinkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,8 +14,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,12 +26,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 
-@SuppressWarnings("MultipleStringLiterals")
+@SuppressWarnings({"MultipleStringLiterals", "MagicNumber"})
 @RestController
 public class ScrapperController {
 
-    private final static Logger LOGGER = LogManager.getLogger();
+    @Autowired
+    @Qualifier("jdbcLinkService")
+    private LinkService linkService;
+    @Autowired
+    @Qualifier("jdbcChatService")
+    private ChatService chatService;
 
     @Operation(summary = "Зарегистрировать чат")
     @ApiResponses(value = {
@@ -37,12 +46,20 @@ public class ScrapperController {
         @ApiResponse(responseCode = "400",
                      description = "Некорректные параметры запроса",
                      content = @Content(mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiErrorResponse.class))),
+        @ApiResponse(responseCode = "409",
+                     description = "Чат уже существует",
+                     content = @Content(mediaType = "application/json",
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping(path = "/tg-chat/{id}")
-    public ResponseEntity<Void> addTgChat(@Positive @PathVariable long id) {
-        // добавить чат в БД
-        LOGGER.info("Чат " + id + " успешно добавлен.");
+    public ResponseEntity<Void> addTgChat(@Positive @PathVariable long id,
+                                          @NotEmpty @RequestHeader("Name") String name) {
+        boolean isSuccess = chatService.add(id, name);
+        if (!isSuccess) {
+            throw HttpClientErrorException.Conflict.create(HttpStatusCode.valueOf(409),
+                "Чат уже существует", HttpHeaders.EMPTY, null, null);
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -61,8 +78,11 @@ public class ScrapperController {
     })
     @DeleteMapping(path = "/tg-chat/{id}")
     public ResponseEntity<Void> deleteTgChat(@Positive @PathVariable long id) {
-        // удалить чат из БД
-        LOGGER.info("Чат " + id + " успешно удален.");
+        boolean isSuccess = chatService.remove(id);
+        if (!isSuccess) {
+            throw HttpClientErrorException.NotFound.create(HttpStatusCode.valueOf(404),
+                "Чат не существует", HttpHeaders.EMPTY, null, null);
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -77,8 +97,7 @@ public class ScrapperController {
     })
     @GetMapping(path = "/state/{id}")
     public ResponseEntity<StateResponse> getState(@Positive @PathVariable long id) {
-        // Достать состояние из БД и вернуть в ответе
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(chatService.getState(id));
     }
 
     @Operation(summary = "Изменить состояние диалога")
@@ -93,7 +112,7 @@ public class ScrapperController {
     @PostMapping(path = "/state/{id}")
     public ResponseEntity<Void> updateState(@Positive @PathVariable long id,
                                             @NotEmpty @RequestHeader("State") String state) {
-        // Обновить состояние в БД
+        chatService.setState(id, state);
         return ResponseEntity.ok().build();
     }
 
@@ -110,34 +129,37 @@ public class ScrapperController {
     })
     @GetMapping(path = "/links")
     public ResponseEntity<ListLinksResponse> getLinks(@Positive @RequestHeader("Tg-Chat-Id") long id) {
-        // Достать ссылки из БД и вернуть в ответе
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(linkService.listAll(id));
     }
 
     @Operation(summary = "Добавить отслеживание ссылки")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200",
-                     description = "Ссылка успешно добавлена",
-                     content = @Content(mediaType = "application/json",
-                                        schema = @Schema(implementation = LinkResponse.class))),
+                     description = "Ссылка успешно добавлена"),
         @ApiResponse(responseCode = "400",
                      description = "Некорректные параметры запроса",
+                     content = @Content(mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiErrorResponse.class))),
+        @ApiResponse(responseCode = "409",
+                     description = "Ссылка уже существует",
                      content = @Content(mediaType = "application/json",
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping(path = "/links/add")
-    public ResponseEntity<LinkResponse> addLink(@Positive @RequestHeader("Tg-Chat-Id") long id,
-                                                @Valid @RequestBody LinkRequest linkRequest) {
-        // Добавить ссылку в БД
+    public ResponseEntity<Void> addLink(@Positive @RequestHeader("Tg-Chat-Id") long id,
+                                        @Valid @RequestBody LinkRequest linkRequest) {
+        boolean isSuccess = linkService.add(id, linkRequest.link());
+        if (!isSuccess) {
+            throw HttpClientErrorException.Conflict.create(HttpStatusCode.valueOf(409),
+                "Ссылка уже существует", HttpHeaders.EMPTY, null, null);
+        }
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Убрать отслеживание ссылки")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200",
-                     description = "Ссылка успешно убрана",
-                     content = @Content(mediaType = "application/json",
-                                        schema = @Schema(implementation = LinkResponse.class))),
+                     description = "Ссылка успешно убрана"),
         @ApiResponse(responseCode = "400",
                      description = "Некорректные параметры запроса",
                      content = @Content(mediaType = "application/json",
@@ -148,9 +170,13 @@ public class ScrapperController {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping(path = "/links/delete")
-    public ResponseEntity<LinkResponse> deleteLink(@Positive @RequestHeader("Tg-Chat-Id") long id,
-                                                   @Valid @RequestBody LinkRequest linkRequest) {
-        // Удалить ссылку из БД
+    public ResponseEntity<Void> deleteLink(@Positive @RequestHeader("Tg-Chat-Id") long id,
+                                           @Valid @RequestBody LinkRequest linkRequest) {
+        boolean isSuccess = linkService.remove(id, linkRequest.link());
+        if (!isSuccess) {
+            throw HttpClientErrorException.NotFound.create(HttpStatusCode.valueOf(404),
+                "Ссылка не найдена", HttpHeaders.EMPTY, null, null);
+        }
         return ResponseEntity.ok().build();
     }
 }
