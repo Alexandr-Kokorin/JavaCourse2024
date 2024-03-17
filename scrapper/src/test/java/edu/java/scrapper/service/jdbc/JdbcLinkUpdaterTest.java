@@ -42,16 +42,14 @@ public class JdbcLinkUpdaterTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void updateTest() throws InterruptedException {
+    void updateTest() {
         chatRepository.add(1, "test");
         linkService.add(1, URI.create("http://test1"));
 
         var links = linkUpdater.getLinks(1);
 
-        Thread.sleep(100);
-
         var response = linkUpdater.update(links.get(0));
 
-        assertThat(response.url()).isEqualTo(URI.create("http://test1"));
+        assertThat(response).isEqualTo(null);
     }
 }

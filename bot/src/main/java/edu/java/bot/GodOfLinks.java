@@ -72,8 +72,12 @@ public class GodOfLinks implements AutoCloseable, UpdatesListener {
     }
 
     public void sendMessage(long id, List<String> list) {
-        for (String text : list) {
-            bot.execute(new SendMessage(id, text));
+        try {
+            for (String text : list) {
+                bot.execute(new SendMessage(id, text));
+            }
+        } catch (Exception e) {
+            LOGGER.error("Чат " + id + " не найден!");
         }
     }
 

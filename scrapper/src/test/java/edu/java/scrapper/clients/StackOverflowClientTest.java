@@ -2,7 +2,6 @@ package edu.java.scrapper.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.scrapper.clients.stackoverflowDTO.Item;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,7 @@ public class StackOverflowClientTest {
             .willReturn(
                 aResponse()
                     .withStatus(200)
-                    .withBody("{\"items\":[{\"last_activity_date\":1419446677,\"last_edit_date\":1419446677,\"creation_date\":1323796809,\"answer_id\":8493347}]}")
+                    .withBody("{\"items\":[{\"owner\":{\"display_name\":Alexander},\"last_activity_date\":1419446677,\"creation_date\":1323796809}]}")
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
             )
         );
@@ -39,12 +38,13 @@ public class StackOverflowClientTest {
     public void stackOverflowTest() {
         var question = new Question(
             List.of(
-                new Item(OffsetDateTime.parse("2014-12-24T18:44:37Z"), OffsetDateTime.parse("2014-12-24T18:44:37Z"),
-                    OffsetDateTime.parse("2011-12-13T17:20:09Z"), 8493347)
+                new Question.Item(new Question.Item.Name("Alexander"),
+                    OffsetDateTime.parse("2014-12-24T18:44:37Z"),
+                    OffsetDateTime.parse("2011-12-13T17:20:09Z"))
             )
         );
 
-        var response = new StackOverflowClient("http://localhost:8888").getQuestionInfo(1).block();
+        var response = new StackOverflowClient("http://localhost:8888").getInfo(1);
 
         assertThat(response).isEqualTo(question);
     }

@@ -33,11 +33,15 @@ public class BotController {
     })
     @PostMapping(path = "/updates")
     public ResponseEntity<Void> sendUpdates(@Valid @RequestBody LinkUpdate linkUpdate) {
+        StringBuilder description = new StringBuilder();
+        for (String desc : linkUpdate.description()) {
+            description.append(desc).append("\n");
+        }
         for (long chatId : linkUpdate.tgChatIds()) {
             bot.sendMessage(
                 chatId,
                 List.of("По ссылке " + linkUpdate.url() + " произошло обновление." + "\n\n"
-                        + "Описание:" + "\n" + linkUpdate.description())
+                        + "Описание:" + "\n" + description)
             );
         }
         return ResponseEntity.ok().build();

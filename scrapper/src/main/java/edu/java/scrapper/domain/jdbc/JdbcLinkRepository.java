@@ -19,10 +19,12 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Transactional
     @Override
-    public void add(URI url, OffsetDateTime lastUpdate) {
-        String sql = "INSERT INTO link (url, last_update, last_check) VALUES (?, ?, ?)";
+    public void add(URI url, OffsetDateTime lastUpdate, String type, String data) {
+        String sql = "INSERT INTO link (url, type, data, last_update, last_check) VALUES (?, ?, ?, ?, ?)";
         jdbcClient.sql(sql)
             .param(url.toString())
+            .param(type)
+            .param(data)
             .param(lastUpdate)
             .param(OffsetDateTime.now())
             .update();
@@ -33,6 +35,16 @@ public class JdbcLinkRepository implements LinkRepository {
     public void remove(long id) {
         String sql = "DELETE FROM link WHERE id=?";
         jdbcClient.sql(sql)
+            .param(id)
+            .update();
+    }
+
+    @Transactional
+    @Override
+    public void updateData(long id, String data) {
+        String sql = "UPDATE link SET data=? WHERE id=?";
+        jdbcClient.sql(sql)
+            .param(data)
             .param(id)
             .update();
     }
