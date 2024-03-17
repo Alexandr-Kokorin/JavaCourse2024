@@ -2,9 +2,9 @@ package edu.java.scrapper.clients;
 
 import edu.java.scrapper.clients.githubDTO.Branch;
 import edu.java.scrapper.clients.githubDTO.Commit;
+import edu.java.scrapper.clients.githubDTO.GitHub;
 import edu.java.scrapper.clients.githubDTO.Pull;
 import edu.java.scrapper.clients.githubDTO.Repository;
-import edu.java.scrapper.clients.githubDTO.GitHub;
 import org.springframework.web.reactive.function.client.WebClient;
 
 public class GitHubClient {

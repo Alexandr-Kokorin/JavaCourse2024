@@ -28,7 +28,7 @@ public class StackOverflowClientTest {
             .willReturn(
                 aResponse()
                     .withStatus(200)
-                    .withBody("{\"items\":[{\"owner\":{\"display_name\":Alexander},\"last_activity_date\":1419446677,\"creation_date\":1323796809}]}")
+                    .withBody("{\"items\":[{\"owner\":{\"display_name\":\"Alexander\"},\"last_activity_date\":1419446677,\"creation_date\":1323796809}]}")
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
             )
         );
@@ -38,7 +38,7 @@ public class StackOverflowClientTest {
     public void stackOverflowTest() {
         var question = new Question(
             List.of(
-                new Question.Item(new Question.Item.Name("Alexander"),
+                new Question.Item(new Question.Item.Owner("Alexander"),
                     OffsetDateTime.parse("2014-12-24T18:44:37Z"),
                     OffsetDateTime.parse("2011-12-13T17:20:09Z"))
             )

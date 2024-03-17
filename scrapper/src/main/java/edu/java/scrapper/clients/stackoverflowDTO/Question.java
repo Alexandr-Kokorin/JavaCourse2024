@@ -8,11 +8,12 @@ public record Question(
     List<Item> items
 ) {
     public record Item(
-        @JsonProperty("owner") Name name,
+        @JsonProperty("owner") Owner owner,
         @JsonProperty("last_activity_date") OffsetDateTime lastActivityDate,
         @JsonProperty("creation_date") OffsetDateTime creationDate
     ) {
-        public record Name(
+        public record Owner(
+
             @JsonProperty("display_name") String name
         ) { }
     }

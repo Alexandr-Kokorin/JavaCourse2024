@@ -1,7 +1,7 @@
 package edu.java.scrapper.service.handlers;
 
-import org.springframework.stereotype.Component;
 import java.net.URI;
+import org.springframework.stereotype.Component;
 
 @Component
 public class LinkHandler {
@@ -10,8 +10,7 @@ public class LinkHandler {
         String type = "";
         if (url.toString().contains("github.com")) {
             type = "github";
-        }
-        else if (url.toString().contains("stackoverflow.com")) {
+        } else if (url.toString().contains("stackoverflow.com")) {
             type = "stackoverflow";
         }
         return type;

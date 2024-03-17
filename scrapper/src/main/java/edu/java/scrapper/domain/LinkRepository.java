@@ -4,7 +4,6 @@ import edu.java.scrapper.domain.dto.Link;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
-import io.swagger.v3.core.util.Json;
 import org.springframework.stereotype.Repository;
 
 @Repository

@@ -6,11 +6,11 @@ import java.time.OffsetDateTime;
 public record Commit(
     @JsonProperty("commit") InternalCommit internalCommit
 ) {
-    public record  InternalCommit (
+    public record  InternalCommit(
         @JsonProperty("committer") Committer committer,
         @JsonProperty("message") String message
     ) {
-        public record Committer (
+        public record Committer(
             @JsonProperty("date") OffsetDateTime createdTime
         ) { }
     }

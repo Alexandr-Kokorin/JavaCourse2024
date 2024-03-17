@@ -1,11 +1,14 @@
 package edu.java.scrapper.service.handlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.java.scrapper.clients.StackOverflowClient;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
 import edu.java.scrapper.domain.data.StackOverflowData;
+import io.swagger.v3.core.util.Json;
+import java.net.URI;
+import java.time.OffsetDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.net.URI;
 
 @Component
 public class StackOverflowHandler {
@@ -18,7 +21,24 @@ public class StackOverflowHandler {
         return stackOverflowClient.getInfo(Integer.parseInt(parts[parts.length - 2]));
     }
 
-    public StackOverflowData getData(Question question) {
-        return new StackOverflowData(question.items().size());
+    public String getData(Question question) {
+        try {
+            return Json.mapper().writeValueAsString(new StackOverflowData(question.items().size()));
+        } catch (JsonProcessingException e) {
+            return "";
+        }
+    }
+
+    public OffsetDateTime getLastUpdate(Question question) {
+        if (question.items().size() == 0) {
+            return OffsetDateTime.now();
+        }
+        var lastUpdate = question.items().get(0).lastActivityDate();
+        for (Question.Item item : question.items()) {
+            if (item.lastActivityDate().isAfter(lastUpdate)) {
+                lastUpdate = item.lastActivityDate();
+            }
+        }
+        return lastUpdate;
     }
 }

@@ -1,20 +1,18 @@
 package edu.java.scrapper.service.jdbc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.java.dto.LinkResponse;
 import edu.java.dto.ListLinksResponse;
 import edu.java.scrapper.clients.githubDTO.GitHub;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
 import edu.java.scrapper.domain.AssignmentRepository;
 import edu.java.scrapper.domain.LinkRepository;
+import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.handlers.GitHubHandler;
 import edu.java.scrapper.service.handlers.LinkHandler;
-import edu.java.scrapper.service.LinkService;
+import edu.java.scrapper.service.handlers.StackOverflowHandler;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Objects;
-import edu.java.scrapper.service.handlers.StackOverflowHandler;
-import io.swagger.v3.core.util.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,11 +37,7 @@ public class JdbcLinkService implements LinkService {
     public boolean add(long chatId, URI url) {
         var link = linkRepository.findByURL(url);
         if (Objects.isNull(link)) {
-            try {
-                addLink(url);
-            } catch (JsonProcessingException e) {
-                return false;
-            }
+            addLink(url);
             link = linkRepository.findByURL(url);
             assignmentRepository.add(chatId, link.id());
             return true;
@@ -56,21 +50,18 @@ public class JdbcLinkService implements LinkService {
         return false;
     }
 
-    private void addLink(URI url) throws JsonProcessingException {
+    private void addLink(URI url) {
         String type = linkHandler.getType(url);
         OffsetDateTime lastUpdate = OffsetDateTime.now();
         String data = "";
         if (type.equals("github")) {
             GitHub gitHub = gitHubHandler.getInfo(url);
             lastUpdate = gitHub.repository().pushedTime();
-            data = Json.mapper().writeValueAsString(gitHubHandler.getData(gitHub));
-        }
-        else if (type.equals("stackoverflow")) {
+            data = gitHubHandler.getData(gitHub);
+        } else if (type.equals("stackoverflow")) {
             Question question = stackOverflowHandler.getInfo(url);
-            lastUpdate = question.items()
-                .stream().max((o1, o2) -> o1.lastActivityDate().isAfter(o2.lastActivityDate()) ? 1: -1)
-                .orElseThrow().lastActivityDate();
-            data = Json.mapper().writeValueAsString(stackOverflowHandler.getData(question));
+            lastUpdate = stackOverflowHandler.getLastUpdate(question);
+            data = stackOverflowHandler.getData(question);
         }
         linkRepository.add(url, lastUpdate, type, data);
     }

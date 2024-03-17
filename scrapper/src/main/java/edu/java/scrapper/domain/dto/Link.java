@@ -1,6 +1,5 @@
 package edu.java.scrapper.domain.dto;
 
-import io.swagger.v3.core.util.Json;
 import java.net.URI;
 import java.time.OffsetDateTime;
 
