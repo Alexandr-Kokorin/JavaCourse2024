@@ -76,11 +76,7 @@ public class JdbcLinkRepository implements LinkRepository {
         List<Link> list = jdbcClient.sql(sql)
             .param(id)
             .query(new LinkMapper()).list();
-        if (!list.isEmpty()) {
-            return list.get(0);
-        } else {
-            return null;
-        }
+        return list.isEmpty() ? null : list.get(0);
     }
 
     @Transactional
@@ -90,11 +86,7 @@ public class JdbcLinkRepository implements LinkRepository {
         List<Link> list = jdbcClient.sql(sql)
             .param(url.toString())
             .query(new LinkMapper()).list();
-        if (!list.isEmpty()) {
-            return list.get(0);
-        } else {
-            return null;
-        }
+        return list.isEmpty() ? null : list.get(0);
     }
 
     @Transactional

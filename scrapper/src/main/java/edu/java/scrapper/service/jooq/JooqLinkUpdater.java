@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.jdbc;
+package edu.java.scrapper.service.jooq;
 
 import edu.java.dto.LinkUpdate;
 import edu.java.scrapper.domain.AssignmentRepository;
@@ -18,13 +18,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JdbcLinkUpdater implements LinkUpdater {
+public class JooqLinkUpdater implements LinkUpdater {
 
     @Autowired
-    @Qualifier("jdbcLinkRepository")
+    @Qualifier("jooqLinkRepository")
     private LinkRepository linkRepository;
     @Autowired
-    @Qualifier("jdbcAssignmentRepository")
+    @Qualifier("jooqAssignmentRepository")
     private AssignmentRepository assignmentRepository;
     @Autowired
     private LinkHandler linkHandler;

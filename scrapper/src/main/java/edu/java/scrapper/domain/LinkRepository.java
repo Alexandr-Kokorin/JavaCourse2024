@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LinkRepository {
 
-    void add(URI url, OffsetDateTime lastUpdate, String name, String data);
+    void add(URI url, OffsetDateTime lastUpdate, String type, String data);
 
     void remove(long id);
 
