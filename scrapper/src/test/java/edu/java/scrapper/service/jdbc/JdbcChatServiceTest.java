@@ -47,7 +47,7 @@ public class JdbcChatServiceTest extends IntegrationTest {
     @Rollback
     void removeTest() {
         chatService.add(1, "test");
-        linkRepository.add(URI.create("http://test"), OffsetDateTime.now());
+        linkRepository.add(URI.create("http://test"), OffsetDateTime.now(), "", "");
 
         var links = linkRepository.findAllWithLimit(1);
 

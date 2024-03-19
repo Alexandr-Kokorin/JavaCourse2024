@@ -6,6 +6,8 @@ import java.time.OffsetDateTime;
 public record Link(
     long id,
     URI url,
+    String type,
+    String data,
     OffsetDateTime lastUpdate,
     OffsetDateTime lastCheck
 ) { }

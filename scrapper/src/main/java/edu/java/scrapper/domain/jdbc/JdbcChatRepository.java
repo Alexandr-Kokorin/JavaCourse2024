@@ -54,10 +54,6 @@ public class JdbcChatRepository implements ChatRepository {
         List<Chat> list = jdbcClient.sql(sql)
             .param(id)
             .query(new ChatMapper()).list();
-        if (!list.isEmpty()) {
-            return list.get(0);
-        } else {
-            return null;
-        }
+        return list.isEmpty() ? null : list.get(0);
     }
 }

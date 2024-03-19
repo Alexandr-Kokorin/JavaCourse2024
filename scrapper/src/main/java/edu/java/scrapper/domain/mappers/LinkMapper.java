@@ -16,6 +16,8 @@ public class LinkMapper implements RowMapper<Link> {
             return new Link(
                 rs.getInt("id"),
                 new URI(rs.getString("url")),
+                rs.getString("type"),
+                rs.getString("data"),
                 rs.getTimestamp("last_update").toLocalDateTime().atOffset(ZoneOffset.UTC),
                 rs.getTimestamp("last_check").toLocalDateTime().atOffset(ZoneOffset.UTC)
             );

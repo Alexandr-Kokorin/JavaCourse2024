@@ -1,11 +1,14 @@
 package edu.java.scrapper.domain.jdbc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.AssignmentRepository;
 import edu.java.scrapper.domain.ChatRepository;
 import edu.java.scrapper.domain.LinkRepository;
+import edu.java.scrapper.domain.data.StackOverflowData;
 import edu.java.scrapper.domain.dto.Assignment;
 import edu.java.scrapper.domain.mappers.AssignmentMapper;
+import io.swagger.v3.core.util.Json;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +39,12 @@ public class JdbcAssignmentRepositoryTest extends IntegrationTest {
     @BeforeEach
     @Transactional
     @Rollback
-    void createLinksAndChats() {
+    void createLinksAndChats() throws JsonProcessingException {
         chatRepository.add(1, "test1");
         chatRepository.add(2, "test2");
-        linkRepository.add(URI.create("http://test1"), OffsetDateTime.now());
-        linkRepository.add(URI.create("http://test2"), OffsetDateTime.now());
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test1"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
+        linkRepository.add(URI.create("http://test2"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
     }
 
     @Test

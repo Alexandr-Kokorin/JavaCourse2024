@@ -6,6 +6,6 @@ import java.net.URI;
 
 public record LinkUpdate(
     @NotNull URI url,
-    @NotEmpty String description,
+    @NotEmpty String[] description,
     @NotEmpty long[] tgChatIds
 ) { }
