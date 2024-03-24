@@ -10,10 +10,14 @@ import edu.java.bot.configuration.MessageDatabase;
 import edu.java.bot.states.DialogState;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DialogManager {
+
+    @Autowired
+    private ScrapperClient scrapperClient;
 
     public List<String> sortMessage(long id, String message) {
         if (message.startsWith("/")) {
@@ -24,7 +28,15 @@ public class DialogManager {
     }
 
     private List<String> sortCommand(long id, String message) {
-        // Проверка состояния на NONE, да - дальше, нет - заглушку
+        DialogState state;
+        try {
+            state = DialogState.valueOf(scrapperClient.getState(id).getBody().state());
+        } catch (NullPointerException e) {
+            state = DialogState.NONE;
+        }
+        if (state != DialogState.NONE) {
+            return List.of(MessageDatabase.unidentifiedMessage);
+        }
         Command command = switch (message) {
             case "/start" -> new Start(id, message);
             case "/help" -> new Help(id, message);
@@ -41,8 +53,12 @@ public class DialogManager {
     }
 
     private List<String> sortText(long id, String message) {
-        // Достаем состояние из базы
-        DialogState state = DialogState.NONE;
+        DialogState state;
+        try {
+            state = DialogState.valueOf(scrapperClient.getState(id).getBody().state());
+        } catch (NullPointerException e) {
+            state = DialogState.NONE;
+        }
         Command command =  switch (state) {
             case START -> new Start(id, message);
             case TRACK -> new Track(id, message);
