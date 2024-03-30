@@ -3,6 +3,7 @@ app:
     enable: true
     interval: 150s
     force-check-delay: 10s
+  database-access-type: jdbc
 
 spring:
   application:
@@ -16,8 +17,9 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     properties:
-      hibernate.dialect:
-        org.hibernate.dialect.PostgreSQLDialect
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        enable_lazy_load_no_trans: true
 
 server:
   port: 8080

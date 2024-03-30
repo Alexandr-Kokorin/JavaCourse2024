@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +32,8 @@ import org.springframework.web.client.HttpClientErrorException;
 public class ScrapperController {
 
     @Autowired
-    @Qualifier("jdbcLinkService")
     private LinkService linkService;
     @Autowired
-    @Qualifier("jdbcChatService")
     private ChatService chatService;
 
     @Operation(summary = "Зарегистрировать чат")

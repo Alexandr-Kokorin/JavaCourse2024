@@ -4,8 +4,8 @@ import edu.java.dto.LinkResponse;
 import edu.java.dto.ListLinksResponse;
 import edu.java.scrapper.clients.githubDTO.GitHub;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
-import edu.java.scrapper.domain.AssignmentRepository;
-import edu.java.scrapper.domain.LinkRepository;
+import edu.java.scrapper.domain.jooq.JooqAssignmentRepository;
+import edu.java.scrapper.domain.jooq.JooqLinkRepository;
 import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.handlers.GitHubHandler;
 import edu.java.scrapper.service.handlers.LinkHandler;
@@ -13,25 +13,28 @@ import edu.java.scrapper.service.handlers.StackOverflowHandler;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
-@Service
 public class JooqLinkService implements LinkService {
 
-    @Autowired
-    @Qualifier("jooqLinkRepository")
-    private LinkRepository linkRepository;
-    @Autowired
-    @Qualifier("jooqAssignmentRepository")
-    private AssignmentRepository assignmentRepository;
-    @Autowired
-    private LinkHandler linkHandler;
-    @Autowired
-    private GitHubHandler gitHubHandler;
-    @Autowired
-    private StackOverflowHandler stackOverflowHandler;
+    private final JooqLinkRepository linkRepository;
+    private final JooqAssignmentRepository assignmentRepository;
+    private final LinkHandler linkHandler;
+    private final GitHubHandler gitHubHandler;
+    private final StackOverflowHandler stackOverflowHandler;
+
+    public JooqLinkService(
+        JooqLinkRepository linkRepository,
+        JooqAssignmentRepository assignmentRepository,
+        LinkHandler linkHandler,
+        GitHubHandler gitHubHandler,
+        StackOverflowHandler stackOverflowHandler
+    ) {
+        this.linkRepository = linkRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.linkHandler = linkHandler;
+        this.gitHubHandler = gitHubHandler;
+        this.stackOverflowHandler = stackOverflowHandler;
+    }
 
     @Override
     public boolean add(long chatId, URI url) {

@@ -19,7 +19,9 @@ public class BotClient {
     }
 
     public ResponseEntity<Void> sendUpdates(LinkUpdate linkUpdate) throws JsonProcessingException {
-        return restClient.post().uri("/links").body(new ObjectMapper().writeValueAsString(linkUpdate))
+        return restClient.post().uri("/links")
+            .header("Content-Type", "application/json;charset=UTF-8")
+            .body(new ObjectMapper().writeValueAsString(linkUpdate))
             .retrieve().toBodilessEntity();
     }
 }

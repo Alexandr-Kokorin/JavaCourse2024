@@ -1,12 +1,17 @@
 package edu.java.bot.commands;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import edu.java.bot.ScrapperClient;
 import edu.java.bot.configuration.MessageDatabase;
+import edu.java.bot.states.DialogState;
+import java.net.URI;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 public class Untrack extends Command {
 
-    public Untrack(long id, String message) {
-        super(id, message);
+    public Untrack(long id, String message, ScrapperClient client) {
+        super(id, message, client);
     }
 
     @Override
@@ -19,15 +24,21 @@ public class Untrack extends Command {
     }
 
     private List<String> commandProcessing() {
-        // Изменить сотояние диалога
-        // dialogState = UNTRACK
+        client.updateState(id, DialogState.UNTRACK);
         return List.of(MessageDatabase.untrackMessagePart1);
     }
 
     private List<String> linkProcessing() {
-        // Проверить наличие ссылки, есть - дальше, нет - заглушку
-        // Удалить из базы ссылку и изменить сотояние диалога
-        // dialogState = NONE
+        client.updateState(id, DialogState.NONE);
+        ResponseEntity<Void> result;
+        try {
+            result = client.deleteLink(id, URI.create(message));
+        } catch (JsonProcessingException e) {
+            return List.of(MessageDatabase.untrackMessageError);
+        }
+        if (!result.getStatusCode().is2xxSuccessful()) {
+            return List.of(MessageDatabase.untrackMessageError);
+        }
         return List.of(MessageDatabase.untrackMessagePart2);
     }
 }

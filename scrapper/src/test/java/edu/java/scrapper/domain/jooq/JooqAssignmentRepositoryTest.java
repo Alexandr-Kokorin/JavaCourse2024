@@ -2,9 +2,6 @@ package edu.java.scrapper.domain.jooq;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.java.scrapper.IntegrationTest;
-import edu.java.scrapper.domain.AssignmentRepository;
-import edu.java.scrapper.domain.ChatRepository;
-import edu.java.scrapper.domain.LinkRepository;
 import edu.java.scrapper.domain.data.StackOverflowData;
 import edu.java.scrapper.domain.dto.Assignment;
 import edu.java.scrapper.domain.mappers.AssignmentMapper;
@@ -12,7 +9,6 @@ import io.swagger.v3.core.util.Json;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.annotation.Rollback;
@@ -25,14 +21,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class JooqAssignmentRepositoryTest extends IntegrationTest {
 
     @Autowired
-    @Qualifier("jooqAssignmentRepository")
-    private AssignmentRepository assignmentRepository;
+    private JooqAssignmentRepository assignmentRepository;
     @Autowired
-    @Qualifier("jooqChatRepository")
-    private ChatRepository chatRepository;
+    private JooqChatRepository chatRepository;
     @Autowired
-    @Qualifier("jooqLinkRepository")
-    private LinkRepository linkRepository;
+    private JooqLinkRepository linkRepository;
     @Autowired
     private JdbcClient jdbcClient;
 

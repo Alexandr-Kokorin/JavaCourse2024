@@ -4,11 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,8 +34,13 @@ public class LinkEntity {
     private OffsetDateTime lastUpdate;
     private OffsetDateTime lastCheck;
 
-    @ManyToMany(mappedBy = "links")
-    private Set<ChatEntity> chats = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+        name = "assignment",
+        joinColumns = @JoinColumn(name = "link_id"),
+        inverseJoinColumns = @JoinColumn(name = "chat_id")
+    )
+    private List<ChatEntity> chats;
 
     public LinkEntity(
         String url,
@@ -42,7 +48,7 @@ public class LinkEntity {
         String data,
         OffsetDateTime lastUpdate,
         OffsetDateTime lastCheck,
-        Set<ChatEntity> chats
+        List<ChatEntity> chats
     ) {
         this.url = url;
         this.type = type;

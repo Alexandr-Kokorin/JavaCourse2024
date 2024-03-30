@@ -2,13 +2,11 @@ package edu.java.scrapper.domain.jdbc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.java.scrapper.IntegrationTest;
-import edu.java.scrapper.domain.LinkRepository;
 import edu.java.scrapper.domain.data.StackOverflowData;
 import edu.java.scrapper.domain.mappers.LinkMapper;
 import io.swagger.v3.core.util.Json;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.annotation.Rollback;
@@ -21,8 +19,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class JdbcLinkRepositoryTest extends IntegrationTest {
 
     @Autowired
-    @Qualifier("jdbcLinkRepository")
-    private LinkRepository linkRepository;
+    private JdbcLinkRepository linkRepository;
     @Autowired
     private JdbcClient jdbcClient;
 

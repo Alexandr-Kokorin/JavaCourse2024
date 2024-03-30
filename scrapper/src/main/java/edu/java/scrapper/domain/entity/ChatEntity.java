@@ -2,14 +2,12 @@ package edu.java.scrapper.domain.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,19 +29,15 @@ public class ChatEntity {
 
     private OffsetDateTime createdAt;
 
-    @ManyToMany
-    @JoinTable(
-        name = "assignment",
-        joinColumns = @JoinColumn(name = "chat_id"),
-        inverseJoinColumns = @JoinColumn(name = "link_id")
-    )
-    private Set<LinkEntity> links = new HashSet<>();
+    @ManyToMany(mappedBy = "chats")
+    private List<LinkEntity> links;
 
     public ChatEntity(long id, String name, String state, OffsetDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.state = state;
         this.createdAt = createdAt;
+        links = new ArrayList<>();
     }
 
     @Override public boolean equals(Object o) {

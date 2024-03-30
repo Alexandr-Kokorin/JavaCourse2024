@@ -1,9 +1,7 @@
 package edu.java.scrapper.service;
 
 import edu.java.dto.StateResponse;
-import org.springframework.stereotype.Service;
 
-@Service
 public interface ChatService {
 
     boolean add(long chatId, String name);

@@ -1,5 +1,6 @@
 package edu.java.scrapper.service.jpa;
 
+import edu.java.dto.LinkResponse;
 import edu.java.dto.ListLinksResponse;
 import edu.java.scrapper.clients.githubDTO.GitHub;
 import edu.java.scrapper.clients.stackoverflowDTO.Question;
@@ -13,37 +14,45 @@ import edu.java.scrapper.service.handlers.LinkHandler;
 import edu.java.scrapper.service.handlers.StackOverflowHandler;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class JpaLinkService implements LinkService {
 
-    @Autowired
-    private JpaLinkRepository jpaLinkRepository;
-    @Autowired
-    private JpaChatRepository jpaChatRepository;
-    @Autowired
-    private LinkHandler linkHandler;
-    @Autowired
-    private GitHubHandler gitHubHandler;
-    @Autowired
-    private StackOverflowHandler stackOverflowHandler;
+    private final JpaLinkRepository jpaLinkRepository;
+    private final JpaChatRepository jpaChatRepository;
+    private final LinkHandler linkHandler;
+    private final GitHubHandler gitHubHandler;
+    private final StackOverflowHandler stackOverflowHandler;
+
+    public JpaLinkService(
+        JpaLinkRepository jpaLinkRepository,
+        JpaChatRepository jpaChatRepository,
+        LinkHandler linkHandler,
+        GitHubHandler gitHubHandler,
+        StackOverflowHandler stackOverflowHandler
+    ) {
+        this.jpaLinkRepository = jpaLinkRepository;
+        this.jpaChatRepository = jpaChatRepository;
+        this.linkHandler = linkHandler;
+        this.gitHubHandler = gitHubHandler;
+        this.stackOverflowHandler = stackOverflowHandler;
+    }
 
     @Override
     public boolean add(long chatId, URI url) {
         var link = jpaLinkRepository.findByUrl(url.toString());
         if (Objects.isNull(link)) {
             addLink(chatId, url);
+            jpaChatRepository.flush();
             return true;
         }
         var chats = link.getChats();
         var chat = jpaChatRepository.findById(chatId).orElseThrow();
         if (!chats.contains(chat)) {
-            link.getChats().add(chat);
-            jpaLinkRepository.flush();
+            chats.add(chat);
+            jpaLinkRepository.saveAndFlush(link);
+            jpaChatRepository.flush();
             return true;
         }
         return false;
@@ -62,9 +71,10 @@ public class JpaLinkService implements LinkService {
             lastUpdate = stackOverflowHandler.getLastUpdate(question);
             data = stackOverflowHandler.getData(question);
         }
-        var chat = jpaChatRepository.findById(chatId).orElse(new ChatEntity());
+        var list = new ArrayList<ChatEntity>();
+        list.add(jpaChatRepository.findById(chatId).orElse(new ChatEntity()));
         jpaLinkRepository.saveAndFlush(
-            new LinkEntity(url.toString(), type, data, lastUpdate, OffsetDateTime.now(), Set.of(chat))
+            new LinkEntity(url.toString(), type, data, lastUpdate, OffsetDateTime.now(), list)
         );
     }
 
@@ -74,11 +84,25 @@ public class JpaLinkService implements LinkService {
         if (Objects.isNull(link)) {
             return false;
         }
+        if (link.getChats().size() == 1) {
+            jpaLinkRepository.deleteById(link.getId());
+        } else {
+            var chat = jpaChatRepository.findById(chatId).orElseThrow();
+            link.getChats().remove(chat);
+            jpaLinkRepository.saveAndFlush(link);
+        }
+        jpaLinkRepository.flush();
+        jpaChatRepository.flush();
         return true;
     }
 
     @Override
     public ListLinksResponse listAll(long chatId) {
-        return null;
+        var links = jpaChatRepository.findById(chatId).orElseThrow().getLinks();
+        var linksResponse = new LinkResponse[links.size()];
+        for (int i = 0; i < links.size(); i++) {
+            linksResponse[i] = new LinkResponse(links.get(i).getId(), URI.create(links.get(i).getUrl()));
+        }
+        return new ListLinksResponse(linksResponse, links.size());
     }
 }

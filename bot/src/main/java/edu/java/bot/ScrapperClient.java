@@ -7,7 +7,9 @@ import edu.java.dto.LinkRequest;
 import edu.java.dto.ListLinksResponse;
 import edu.java.dto.StateResponse;
 import java.net.URI;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 @SuppressWarnings("MultipleStringLiterals")
@@ -24,11 +26,19 @@ public class ScrapperClient {
     }
 
     public ResponseEntity<Void> addTgChat(long id, String name) {
-        return restClient.post().uri("/tg-chat/{id}", id).header("Name", name).retrieve().toBodilessEntity();
+        try {
+            return restClient.post().uri("/tg-chat/{id}", id).header("Name", name).retrieve().toBodilessEntity();
+        } catch (HttpServerErrorException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
     }
 
     public ResponseEntity<Void> deleteTgChat(long id) {
-        return restClient.delete().uri("/tg-chat/{id}", id).retrieve().toBodilessEntity();
+        try {
+            return restClient.delete().uri("/tg-chat/{id}", id).retrieve().toBodilessEntity();
+        } catch (HttpServerErrorException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     public ResponseEntity<StateResponse> getState(long id) {
@@ -46,12 +56,22 @@ public class ScrapperClient {
     }
 
     public ResponseEntity<Void> addLink(long id, URI link) throws JsonProcessingException {
-        return restClient.post().uri("/links/add").header("Tg-Chat-Id", String.valueOf(id))
-            .body(new ObjectMapper().writeValueAsString(new LinkRequest(link))).retrieve().toBodilessEntity();
+        try {
+            return restClient.post().uri("/links/add").header("Tg-Chat-Id", String.valueOf(id))
+                .header("Content-Type", "application/json;charset=UTF-8")
+                .body(new ObjectMapper().writeValueAsString(new LinkRequest(link))).retrieve().toBodilessEntity();
+        } catch (HttpServerErrorException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
     }
 
     public ResponseEntity<Void> deleteLink(long id, URI link) throws JsonProcessingException {
-        return restClient.post().uri("/links/delete").header("Tg-Chat-Id", String.valueOf(id))
-            .body(new ObjectMapper().writeValueAsString(new LinkRequest(link))).retrieve().toBodilessEntity();
+        try {
+            return restClient.post().uri("/links/delete").header("Tg-Chat-Id", String.valueOf(id))
+                .header("Content-Type", "application/json;charset=UTF-8")
+                .body(new ObjectMapper().writeValueAsString(new LinkRequest(link))).retrieve().toBodilessEntity();
+        } catch (HttpServerErrorException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

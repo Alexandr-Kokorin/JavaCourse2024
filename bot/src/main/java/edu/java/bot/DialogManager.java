@@ -28,21 +28,16 @@ public class DialogManager {
     }
 
     private List<String> sortCommand(long id, String message) {
-        DialogState state;
-        try {
-            state = DialogState.valueOf(scrapperClient.getState(id).getBody().state());
-        } catch (NullPointerException e) {
-            state = DialogState.NONE;
-        }
+        DialogState state = getState(id);
         if (state != DialogState.NONE) {
             return List.of(MessageDatabase.unidentifiedMessage);
         }
         Command command = switch (message) {
-            case "/start" -> new Start(id, message);
-            case "/help" -> new Help(id, message);
-            case "/track" -> new Track(id, message);
-            case "/untrack" -> new Untrack(id, message);
-            case "/list" -> new ListOfLinks(id, message);
+            case "/start" -> new Start(id, message, scrapperClient);
+            case "/help" -> new Help(id, message, scrapperClient);
+            case "/track" -> new Track(id, message, scrapperClient);
+            case "/untrack" -> new Untrack(id, message, scrapperClient);
+            case "/list" -> new ListOfLinks(id, message, scrapperClient);
             default -> null;
         };
         if (Objects.isNull(command)) {
@@ -53,22 +48,26 @@ public class DialogManager {
     }
 
     private List<String> sortText(long id, String message) {
+        DialogState state = getState(id);
+        Command command =  switch (state) {
+            case TRACK -> new Track(id, message, scrapperClient);
+            case UNTRACK -> new Untrack(id, message, scrapperClient);
+            default -> null;
+        };
+        if (Objects.isNull(command)) {
+            return List.of(MessageDatabase.unidentifiedMessage);
+        } else {
+            return command.execute();
+        }
+    }
+
+    private DialogState getState(long id) {
         DialogState state;
         try {
             state = DialogState.valueOf(scrapperClient.getState(id).getBody().state());
         } catch (NullPointerException e) {
             state = DialogState.NONE;
         }
-        Command command =  switch (state) {
-            case START -> new Start(id, message);
-            case TRACK -> new Track(id, message);
-            case UNTRACK -> new Untrack(id, message);
-            default -> null;
-        };
-        if (Objects.isNull(command)) {
-            return List.of(MessageDatabase.gagMessage);
-        } else {
-            return command.execute();
-        }
+        return state;
     }
 }

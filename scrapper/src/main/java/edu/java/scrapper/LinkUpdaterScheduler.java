@@ -7,7 +7,6 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,6 @@ public class LinkUpdaterScheduler {
     private final static Logger LOGGER = LogManager.getLogger();
     private final static int COUNT_LINKS = 5;
     @Autowired
-    @Qualifier("jdbcLinkUpdater")
     private LinkUpdater linkUpdater;
     @Autowired
     private BotClient botClient;
