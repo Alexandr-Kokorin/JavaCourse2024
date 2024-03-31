@@ -9,6 +9,8 @@ import edu.java.dto.StateResponse;
 import java.net.URI;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
@@ -25,6 +27,8 @@ public class ScrapperClient {
         this.restClient = RestClient.builder().baseUrl(baseUrl).build();
     }
 
+    @Retryable(maxAttemptsExpression = "${retry-max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry-delay}"))
     public ResponseEntity<Void> addTgChat(long id, String name) {
         try {
             return restClient.post().uri("/tg-chat/{id}", id).header("Name", name).retrieve().toBodilessEntity();
@@ -33,6 +37,8 @@ public class ScrapperClient {
         }
     }
 
+    @Retryable(maxAttemptsExpression = "${retry-max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry-delay}"))
     public ResponseEntity<Void> deleteTgChat(long id) {
         try {
             return restClient.delete().uri("/tg-chat/{id}", id).retrieve().toBodilessEntity();
@@ -41,20 +47,28 @@ public class ScrapperClient {
         }
     }
 
+    @Retryable(maxAttemptsExpression = "${retry-max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry-delay}"))
     public ResponseEntity<StateResponse> getState(long id) {
         return restClient.get().uri("/state/{id}", id).retrieve().toEntity(StateResponse.class);
     }
 
+    @Retryable(maxAttemptsExpression = "${retry-max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry-delay}"))
     public ResponseEntity<Void> updateState(long id, DialogState state) {
         return restClient.post().uri("/state/{id}", id).header("State", state.toString())
             .retrieve().toBodilessEntity();
     }
 
+    @Retryable(maxAttemptsExpression = "${retry-max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry-delay}"))
     public ResponseEntity<ListLinksResponse> getLinks(long id) {
         return restClient.get().uri("/links").header("Tg-Chat-Id", String.valueOf(id))
             .retrieve().toEntity(ListLinksResponse.class);
     }
 
+    @Retryable(maxAttemptsExpression = "${retry-max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry-delay}"))
     public ResponseEntity<Void> addLink(long id, URI link) throws JsonProcessingException {
         try {
             return restClient.post().uri("/links/add").header("Tg-Chat-Id", String.valueOf(id))
@@ -65,6 +79,8 @@ public class ScrapperClient {
         }
     }
 
+    @Retryable(maxAttemptsExpression = "${retry-max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry-delay}"))
     public ResponseEntity<Void> deleteLink(long id, URI link) throws JsonProcessingException {
         try {
             return restClient.post().uri("/links/delete").header("Tg-Chat-Id", String.valueOf(id))

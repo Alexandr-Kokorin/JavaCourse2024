@@ -5,6 +5,8 @@ import edu.java.scrapper.clients.githubDTO.Commit;
 import edu.java.scrapper.clients.githubDTO.GitHub;
 import edu.java.scrapper.clients.githubDTO.Pull;
 import edu.java.scrapper.clients.githubDTO.Repository;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.reactive.function.client.WebClient;
 
 public class GitHubClient {
@@ -19,6 +21,8 @@ public class GitHubClient {
         webClient = WebClient.builder().baseUrl(baseUrl).build();
     }
 
+    @Retryable(maxAttemptsExpression = "${retry-max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry-delay}"))
     public GitHub getInfo(String username, String name) {
         var repository = webClient.get().uri("/repos/{username}/{name}", username, name)
             .retrieve().bodyToMono(Repository.class).block();

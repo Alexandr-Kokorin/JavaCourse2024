@@ -1,5 +1,8 @@
 app:
   telegram-token: ${TELEGRAM_API_KEY}
+  retry-max-attempts: 10
+  retry-delay: 400
+  retry-exponential: 2
 
 spring:
   application:

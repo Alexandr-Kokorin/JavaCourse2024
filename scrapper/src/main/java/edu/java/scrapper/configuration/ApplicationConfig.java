@@ -12,7 +12,10 @@ public record ApplicationConfig(
     @Bean
     @NotNull
     Scheduler scheduler,
-    AccessType databaseAccessType
+    AccessType databaseAccessType,
+    @NotNull int retryMaxAttempts,
+    @NotNull long retryDelay,
+    @NotNull long retryExponential
 ) {
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) { }
 }
