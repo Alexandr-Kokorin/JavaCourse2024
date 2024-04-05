@@ -1,6 +1,5 @@
 package edu.java.scrapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.java.scrapper.domain.dto.Link;
 import edu.java.scrapper.service.LinkUpdater;
 import java.util.Objects;
@@ -28,11 +27,7 @@ public class LinkUpdaterScheduler {
         for (Link link : links) {
             var linkUpdate = linkUpdater.update(link);
             if (Objects.nonNull(linkUpdate)) {
-                try {
-                    botClient.sendUpdates(linkUpdate);
-                } catch (JsonProcessingException e) {
-                    LOGGER.error("Ошибка обновления, некорректный ответ!");
-                }
+                botClient.sendUpdates(linkUpdate);
             }
         }
         LOGGER.info("updating...");

@@ -1,6 +1,5 @@
 package edu.java.bot.commands;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.java.bot.ScrapperClient;
 import edu.java.bot.configuration.MessageDatabase;
 import edu.java.bot.states.DialogState;
@@ -36,12 +35,7 @@ public class Track extends Command {
         if (!message.matches(GITHUB) && !message.matches(STACKOVERFLOW)) {
             return List.of(MessageDatabase.trackMessageError1);
         }
-        ResponseEntity<Void> result;
-        try {
-            result = client.addLink(id, URI.create(message));
-        } catch (JsonProcessingException e) {
-            return List.of(MessageDatabase.trackMessageError1);
-        }
+        ResponseEntity<Void> result = client.addLink(id, URI.create(message));
         if (!result.getStatusCode().is2xxSuccessful()) {
             return List.of(MessageDatabase.trackMessageError2);
         }

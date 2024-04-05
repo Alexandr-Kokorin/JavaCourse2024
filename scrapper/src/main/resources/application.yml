@@ -4,9 +4,10 @@ app:
     interval: 600s
     force-check-delay: 10s
   database-access-type: jdbc
-  retry-max-attempts: 10
-  retry-delay: 400
-  retry-exponential: 2
+  retry:
+    max-attempts: 5
+    delay: 500
+    multiplier: 2
 
 spring:
   application:
