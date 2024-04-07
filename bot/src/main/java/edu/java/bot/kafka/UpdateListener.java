@@ -13,10 +13,16 @@ public class UpdateListener {
 
     @Autowired
     private UpdateService updateService;
+    @Autowired
+    private BotQueueProducerDLQ botQueueProducerDLQ;
 
     @KafkaListener(topics = "scrapper.notifications", containerFactory = "botContainerFactory")
     public void handleMessage(@Payload LinkUpdate linkUpdate, Acknowledgment acknowledgment) {
-        updateService.sendUpdates(linkUpdate);
+        try {
+            updateService.sendUpdates(linkUpdate);
+        } catch (Exception e) {
+            botQueueProducerDLQ.send(linkUpdate);
+        }
         acknowledgment.acknowledge();
     }
 }

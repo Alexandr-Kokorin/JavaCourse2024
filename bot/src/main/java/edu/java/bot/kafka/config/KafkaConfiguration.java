@@ -4,7 +4,9 @@ import edu.java.dto.LinkUpdate;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,15 +16,19 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
 @EnableKafka
 @Configuration
-@EnableConfigurationProperties(KafkaProperties.class)
+@EnableConfigurationProperties({KafkaProperties.class, KafkaPropertiesDLQ.class})
 public class KafkaConfiguration {
 
     private final static Logger LOGGER = LogManager.getLogger();
@@ -65,5 +71,27 @@ public class KafkaConfiguration {
 
         errorHandler.addNotRetryableExceptions(NullPointerException.class);
         return errorHandler;
+    }
+
+    @Bean
+    public ProducerFactory<String, LinkUpdate> producerFactory(KafkaPropertiesDLQ kafkaPropertiesDLQ) {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaPropertiesDLQ.bootstrapServers());
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, kafkaPropertiesDLQ.clientId());
+        props.put(ProducerConfig.ACKS_CONFIG, kafkaPropertiesDLQ.acksMode());
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, (int) kafkaPropertiesDLQ.deliveryTimeout().toMillis());
+        props.put(ProducerConfig.LINGER_MS_CONFIG, kafkaPropertiesDLQ.lingerMs());
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, kafkaPropertiesDLQ.batchSize());
+        props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, kafkaPropertiesDLQ.maxInFlightPerConnection());
+        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, kafkaPropertiesDLQ.enableIdempotence());
+        props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaTemplate<String, LinkUpdate> kafkaTemplate(ProducerFactory<String, LinkUpdate> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
     }
 }

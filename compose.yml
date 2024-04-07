@@ -74,6 +74,37 @@ services:
     ports:
       - "28081:8081"
 
+  zookeeper_dlq:
+    container_name: zookeeper_dlq
+    image: confluentinc/cp-zookeeper:7.4.4
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2182
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/zookeeper/config/zookeeper_jaas.conf"
+    ports:
+      - "22182:2182"
+    volumes:
+      - ./scrapper/src/main/resources/docker/zookeeper_jaas_config.conf:/etc/zookeeper/config/zookeeper_jaas.conf
+
+  kafka_dlq:
+    container_name: kafka_dlq
+    image: confluentinc/cp-kafka:7.4.4
+    depends_on:
+      - zookeeper_dlq
+    ports:
+      - "29093:29093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper_dlq:2182
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka_dlq:9093,PLAINTEXT_HOST://localhost:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      TOPIC_AUTO_CREATE: dlq.notifications:1:1
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/kafka_config_jaas.conf"
+    volumes:
+      - ./scrapper/src/main/resources/docker/kafka_jaas_config.conf:/etc/kafka/kafka_config_jaas.conf
+
 volumes:
   postgresql: { }
 

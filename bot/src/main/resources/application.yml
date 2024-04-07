@@ -51,3 +51,12 @@ kafka:
     enableAutoCommit: false
     concurrency: 1
     schemaRegistryUrl: 'http://localhost:28081'
+  producer:
+    bootstrapServers: localhost:29093
+    clientId: bot
+    acksMode: 0
+    deliveryTimeout: 60s
+    lingerMs: 12_000
+    batchSize: 100_000
+    maxInFlightPerConnection: 5
+    enableIdempotence: true
