@@ -41,3 +41,13 @@ spring-doc:
   swagger-ui:
     path: /swagger-ui
   default-produces-media-type: application/json
+
+kafka:
+  consumer:
+    bootstrapServers: localhost:29092
+    groupId: bot-distributor
+    autoOffsetReset: latest
+    maxPollIntervalMs: 300_000
+    enableAutoCommit: false
+    concurrency: 1
+    schemaRegistryUrl: 'http://localhost:28081'

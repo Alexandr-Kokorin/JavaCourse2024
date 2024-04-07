@@ -4,6 +4,7 @@ app:
     interval: 600s
     force-check-delay: 10s
   database-access-type: jdbc
+  connect-type: kafka
   retry:
     max-attempts: 5
     delay: 500
@@ -56,4 +57,13 @@ spring-doc:
     path: /swagger-ui
   default-produces-media-type: application/json
 
-
+kafka:
+  bootstrapServers: localhost:29092
+  clientId: scrapper
+  acksMode: all
+  deliveryTimeout: 60s
+  lingerMs: 12_000
+  batchSize: 100_000
+  maxInFlightPerConnection: 5
+  enableIdempotence: true
+  schemaRegistryUrl: 'http://localhost:28081'

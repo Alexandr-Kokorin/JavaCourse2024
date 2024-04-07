@@ -1,5 +1,6 @@
 package edu.java.scrapper;
 
+import edu.java.scrapper.connectBot.Connect;
 import edu.java.scrapper.domain.dto.Link;
 import edu.java.scrapper.service.LinkUpdater;
 import java.util.Objects;
@@ -19,7 +20,7 @@ public class LinkUpdaterScheduler {
     @Autowired
     private LinkUpdater linkUpdater;
     @Autowired
-    private BotClient botClient;
+    private Connect connect;
 
     @Scheduled(fixedDelayString = "#{@scheduler.interval}")
     public void update() {
@@ -27,7 +28,7 @@ public class LinkUpdaterScheduler {
         for (Link link : links) {
             var linkUpdate = linkUpdater.update(link);
             if (Objects.nonNull(linkUpdate)) {
-                botClient.sendUpdates(linkUpdate);
+                connect.send(linkUpdate);
             }
         }
         LOGGER.info("updating...");
