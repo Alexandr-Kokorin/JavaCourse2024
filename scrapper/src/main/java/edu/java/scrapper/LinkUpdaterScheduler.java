@@ -1,7 +1,12 @@
 package edu.java.scrapper;
 
+import edu.java.scrapper.connectBot.Connect;
+import edu.java.scrapper.domain.dto.Link;
+import edu.java.scrapper.service.LinkUpdater;
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -11,9 +16,21 @@ import org.springframework.stereotype.Component;
 public class LinkUpdaterScheduler {
 
     private final static Logger LOGGER = LogManager.getLogger();
+    private final static int COUNT_LINKS = 5;
+    @Autowired
+    private LinkUpdater linkUpdater;
+    @Autowired
+    private Connect connect;
 
     @Scheduled(fixedDelayString = "#{@scheduler.interval}")
     public void update() {
+        var links = linkUpdater.getLinks(COUNT_LINKS);
+        for (Link link : links) {
+            var linkUpdate = linkUpdater.update(link);
+            if (Objects.nonNull(linkUpdate)) {
+                connect.send(linkUpdate);
+            }
+        }
         LOGGER.info("updating...");
     }
 }
