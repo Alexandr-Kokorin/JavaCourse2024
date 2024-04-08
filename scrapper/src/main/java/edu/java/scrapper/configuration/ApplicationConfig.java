@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 public record ApplicationConfig(
     @Bean @NotNull Scheduler scheduler,
     @NotNull AccessType databaseAccessType,
+    @NotNull ConnectType connectType,
     @Bean @NotNull Retry retry
 ) {
 
