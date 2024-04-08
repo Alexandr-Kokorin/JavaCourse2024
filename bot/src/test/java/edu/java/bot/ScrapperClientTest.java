@@ -10,6 +10,9 @@ import edu.java.dto.StateResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,10 +27,13 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @WireMockTest
+@SpringBootTest
 public class ScrapperClientTest {
 
     @RegisterExtension
     public static WireMockExtension extension = WireMockExtension.newInstance().options(wireMockConfig().port(8888)).build();
+    @Autowired
+    private ScrapperClient scrapperClient;
 
     @BeforeEach
     public void configStub() {
@@ -180,6 +186,15 @@ public class ScrapperClientTest {
         var expected = ResponseEntity.ok().build().getStatusCode();
 
         var response = new ScrapperClient("http://localhost:8888").deleteLink(1, new URI("http://test")).getStatusCode();
+
+        assertThat(response).isEqualTo(expected);
+    }
+
+    @Test
+    public void retryTest() {
+        var expected = new ResponseEntity<>(null, HttpStatus.SERVICE_UNAVAILABLE).getStatusCode();
+
+        var response = scrapperClient.getState(1).getStatusCode();
 
         assertThat(response).isEqualTo(expected);
     }

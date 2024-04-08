@@ -2,33 +2,45 @@ package edu.java.scrapper.service.jdbc;
 
 import edu.java.dto.LinkResponse;
 import edu.java.dto.ListLinksResponse;
-import edu.java.scrapper.domain.AssignmentRepository;
-import edu.java.scrapper.domain.LinkRepository;
-import edu.java.scrapper.service.LinkHandler;
+import edu.java.scrapper.clients.githubDTO.GitHub;
+import edu.java.scrapper.clients.stackoverflowDTO.Question;
+import edu.java.scrapper.domain.jdbc.JdbcAssignmentRepository;
+import edu.java.scrapper.domain.jdbc.JdbcLinkRepository;
 import edu.java.scrapper.service.LinkService;
+import edu.java.scrapper.service.handlers.GitHubHandler;
+import edu.java.scrapper.service.handlers.LinkHandler;
+import edu.java.scrapper.service.handlers.StackOverflowHandler;
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
-@Service
 public class JdbcLinkService implements LinkService {
 
-    @Autowired
-    @Qualifier("jdbcLinkRepository")
-    private LinkRepository linkRepository;
-    @Autowired
-    @Qualifier("jdbcAssignmentRepository")
-    private AssignmentRepository assignmentRepository;
-    @Autowired
-    private LinkHandler linkHandler;
+    private final JdbcLinkRepository linkRepository;
+    private final JdbcAssignmentRepository assignmentRepository;
+    private final LinkHandler linkHandler;
+    private final GitHubHandler gitHubHandler;
+    private final StackOverflowHandler stackOverflowHandler;
+
+    public JdbcLinkService(
+        JdbcLinkRepository linkRepository,
+        JdbcAssignmentRepository assignmentRepository,
+        LinkHandler linkHandler,
+        GitHubHandler gitHubHandler,
+        StackOverflowHandler stackOverflowHandler
+    ) {
+        this.linkRepository = linkRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.linkHandler = linkHandler;
+        this.gitHubHandler = gitHubHandler;
+        this.stackOverflowHandler = stackOverflowHandler;
+    }
 
     @Override
     public boolean add(long chatId, URI url) {
         var link = linkRepository.findByURL(url);
         if (Objects.isNull(link)) {
-            linkRepository.add(url, linkHandler.getLastUpdate(url));
+            addLink(url);
             link = linkRepository.findByURL(url);
             assignmentRepository.add(chatId, link.id());
             return true;
@@ -39,6 +51,22 @@ public class JdbcLinkService implements LinkService {
             return true;
         }
         return false;
+    }
+
+    private void addLink(URI url) {
+        String type = linkHandler.getType(url);
+        OffsetDateTime lastUpdate = OffsetDateTime.now();
+        String data = "";
+        if (type.equals("github")) {
+            GitHub gitHub = gitHubHandler.getInfo(url);
+            lastUpdate = gitHub.repository().pushedTime();
+            data = gitHubHandler.getData(gitHub);
+        } else if (type.equals("stackoverflow")) {
+            Question question = stackOverflowHandler.getInfo(url);
+            lastUpdate = stackOverflowHandler.getLastUpdate(question);
+            data = stackOverflowHandler.getData(question);
+        }
+        linkRepository.add(url, lastUpdate, type, data);
     }
 
     @Override

@@ -1,28 +1,40 @@
 package edu.java.scrapper.service.jdbc;
 
 import edu.java.dto.LinkUpdate;
-import edu.java.scrapper.domain.AssignmentRepository;
-import edu.java.scrapper.domain.LinkRepository;
+import edu.java.scrapper.domain.data.GitHubData;
+import edu.java.scrapper.domain.data.StackOverflowData;
 import edu.java.scrapper.domain.dto.Link;
-import edu.java.scrapper.service.LinkHandler;
+import edu.java.scrapper.domain.jdbc.JdbcAssignmentRepository;
+import edu.java.scrapper.domain.jdbc.JdbcLinkRepository;
 import edu.java.scrapper.service.LinkUpdater;
+import edu.java.scrapper.service.handlers.GitHubHandler;
+import edu.java.scrapper.service.handlers.LinkHandler;
+import edu.java.scrapper.service.handlers.StackOverflowHandler;
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
+import java.util.Objects;
 
-@Service
 public class JdbcLinkUpdater implements LinkUpdater {
 
-    @Autowired
-    @Qualifier("jdbcLinkRepository")
-    private LinkRepository linkRepository;
-    @Autowired
-    @Qualifier("jdbcAssignmentRepository")
-    private AssignmentRepository assignmentRepository;
-    @Autowired
-    private LinkHandler linkHandler;
+    private final JdbcLinkRepository linkRepository;
+    private final JdbcAssignmentRepository assignmentRepository;
+    private final LinkHandler linkHandler;
+    private final GitHubHandler gitHubHandler;
+    private final StackOverflowHandler stackOverflowHandler;
+
+    public JdbcLinkUpdater(
+        JdbcLinkRepository linkRepository,
+        JdbcAssignmentRepository assignmentRepository,
+        LinkHandler linkHandler,
+        GitHubHandler gitHubHandler,
+        StackOverflowHandler stackOverflowHandler
+    ) {
+        this.linkRepository = linkRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.linkHandler = linkHandler;
+        this.gitHubHandler = gitHubHandler;
+        this.stackOverflowHandler = stackOverflowHandler;
+    }
 
     @Override
     public List<Link> getLinks(int count) {
@@ -31,18 +43,52 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     @Override
     public LinkUpdate update(Link link) {
-        var lastUpdate = linkHandler.getLastUpdate(link.url());
-        if (link.lastUpdate().isBefore(lastUpdate)) {
-            linkRepository.updateTimeOfLastUpdate(link.id(), lastUpdate);
-            linkRepository.updateTimeOfLastCheck(link.id(), OffsetDateTime.now());
+        linkRepository.updateTimeOfLastCheck(link.id(), OffsetDateTime.now());
+        var type = linkHandler.getType(link.url());
+        String[] description = switch (type) {
+            case "github" -> updateGitHub(link);
+            case "stackoverflow" -> updateStackOverflow(link);
+            default -> null;
+        };
+        if (Objects.nonNull(description)) {
             var assignments = assignmentRepository.findAllByLinkId(link.id());
             var tgChatIds = new long[assignments.size()];
             for (int i = 0; i < assignments.size(); i++) {
                 tgChatIds[i] = assignments.get(i).chatId();
             }
-            return new LinkUpdate(link.url(), "Ресурс был обновлён.", tgChatIds);
+            return new LinkUpdate(link.url(), description, tgChatIds);
         }
-        linkRepository.updateTimeOfLastCheck(link.id(), OffsetDateTime.now());
+        return null;
+    }
+
+    private String[] updateGitHub(Link link) {
+        var gitHub = gitHubHandler.getInfo(link.url());
+        var lastUpdate = gitHub.repository().pushedTime();
+        if (link.lastUpdate().isBefore(lastUpdate)) {
+            GitHubData data = gitHubHandler.getGitHubData(link);
+            List<String> description = gitHubHandler.getDescriptionNewCommit(data, gitHub, link);
+            description.addAll(gitHubHandler.getDescriptionCreateOrDeletePull(data, gitHub, link));
+            description.addAll(gitHubHandler.getDescriptionCreateOrDeleteBranch(data, gitHub));
+            description.addAll(linkHandler.getDescriptionUnknownUpdate(description));
+            linkRepository.updateTimeOfLastUpdate(link.id(), lastUpdate);
+            linkRepository.updateData(link.id(), gitHubHandler.getData(gitHub));
+            return description.toArray(new String[0]);
+        }
+        return null;
+    }
+
+    private String[] updateStackOverflow(Link link) {
+        var question = stackOverflowHandler.getInfo(link.url());
+        var lastUpdate = stackOverflowHandler.getLastUpdate(question);
+        if (link.lastUpdate().isBefore(lastUpdate)) {
+            StackOverflowData data = stackOverflowHandler.getStackOverflowData(link);
+            List<String> description = stackOverflowHandler.getDescriptionNewAnswer(data, question, link);
+            description.addAll(stackOverflowHandler.getDescriptionUpdateAnswer(question, link));
+            description.addAll(linkHandler.getDescriptionUnknownUpdate(description));
+            linkRepository.updateTimeOfLastUpdate(link.id(), lastUpdate);
+            linkRepository.updateData(link.id(), stackOverflowHandler.getData(question));
+            return description.toArray(new String[0]);
+        }
         return null;
     }
 }

@@ -63,7 +63,8 @@ public class GodOfLinks implements AutoCloseable, UpdatesListener {
         for (Update update : list) {
             Message message = update.message();
             if (message != null && message.text() != null) {
-                sendMessage(message.chat().id(), dialogManager.sortMessage(message.chat().id(), message.text()));
+                sendMessage(message.chat().id(),
+                    dialogManager.sortMessage(message.chat().id(), message.text()));
             } else {
                 LOGGER.error("Unsupported massage type!");
             }
@@ -72,8 +73,12 @@ public class GodOfLinks implements AutoCloseable, UpdatesListener {
     }
 
     public void sendMessage(long id, List<String> list) {
-        for (String text : list) {
-            bot.execute(new SendMessage(id, text));
+        try {
+            for (String text : list) {
+                bot.execute(new SendMessage(id, text));
+            }
+        } catch (RuntimeException e) {
+            LOGGER.error("Чат " + id + " не найден!");
         }
     }
 

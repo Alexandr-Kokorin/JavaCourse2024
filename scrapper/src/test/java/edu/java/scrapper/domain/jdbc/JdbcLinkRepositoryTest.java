@@ -1,11 +1,12 @@
 package edu.java.scrapper.domain.jdbc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.java.scrapper.IntegrationTest;
-import edu.java.scrapper.domain.LinkRepository;
+import edu.java.scrapper.domain.data.StackOverflowData;
 import edu.java.scrapper.domain.mappers.LinkMapper;
+import io.swagger.v3.core.util.Json;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.annotation.Rollback;
@@ -18,16 +19,16 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class JdbcLinkRepositoryTest extends IntegrationTest {
 
     @Autowired
-    @Qualifier("jdbcLinkRepository")
-    private LinkRepository linkRepository;
+    private JdbcLinkRepository linkRepository;
     @Autowired
     private JdbcClient jdbcClient;
 
     @Test
     @Transactional
     @Rollback
-    void addTest() {
-        linkRepository.add(URI.create("http://test"), OffsetDateTime.now());
+    void addTest() throws JsonProcessingException {
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
 
         var links = linkRepository.findAllWithLimit(1);
 
@@ -37,8 +38,9 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void removeTest() {
-        linkRepository.add(URI.create("http://test"), OffsetDateTime.now());
+    void removeTest() throws JsonProcessingException {
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
 
         var links = linkRepository.findAllWithLimit(1);
 
@@ -52,8 +54,29 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void updateTimeOfLastUpdateTest() throws InterruptedException {
-        linkRepository.add(URI.create("http://test"), OffsetDateTime.now());
+    void updateData() throws InterruptedException, JsonProcessingException {
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
+
+        Thread.sleep(10);
+
+        var links1 = linkRepository.findAllWithLimit(1);
+
+        test = new StackOverflowData(3);
+
+        linkRepository.updateData(links1.get(0).id(), Json.mapper().writeValueAsString(test));
+
+        var links2 = linkRepository.findAllWithLimit(1);
+
+        assertThat(Json.mapper().writeValueAsString(test)).isEqualTo(links2.get(0).data());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void updateTimeOfLastUpdateTest() throws InterruptedException, JsonProcessingException {
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
 
         Thread.sleep(10);
 
@@ -69,8 +92,9 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void updateTimeOfLastCheckTest() throws InterruptedException {
-        linkRepository.add(URI.create("http://test"), OffsetDateTime.now());
+    void updateTimeOfLastCheckTest() throws InterruptedException, JsonProcessingException {
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
 
         Thread.sleep(10);
 
@@ -86,8 +110,9 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findByIdTest() {
-        linkRepository.add(URI.create("http://test"), OffsetDateTime.now());
+    void findByIdTest() throws JsonProcessingException {
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
 
         var links = linkRepository.findAllWithLimit(1);
 
@@ -104,8 +129,9 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findByURLTest() {
-        linkRepository.add(URI.create("http://test"), OffsetDateTime.now());
+    void findByURLTest() throws JsonProcessingException {
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
 
         var link1 = linkRepository.findByURL(URI.create("http://test"));
 
@@ -120,9 +146,10 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findAllWithLimitTest() {
-        linkRepository.add(URI.create("http://test1"), OffsetDateTime.now());
-        linkRepository.add(URI.create("http://test2"), OffsetDateTime.now());
+    void findAllWithLimitTest() throws JsonProcessingException {
+        var test = new StackOverflowData(2);
+        linkRepository.add(URI.create("http://test1"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
+        linkRepository.add(URI.create("http://test2"), OffsetDateTime.now(), "test", Json.mapper().writeValueAsString(test));
 
         var links = linkRepository.findAllWithLimit(10);
 

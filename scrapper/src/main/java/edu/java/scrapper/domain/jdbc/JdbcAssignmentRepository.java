@@ -15,7 +15,6 @@ public class JdbcAssignmentRepository implements AssignmentRepository {
     @Autowired
     private JdbcClient jdbcClient;
 
-
     @Transactional
     @Override
     public void add(long chatId, long linkId) {
@@ -44,11 +43,7 @@ public class JdbcAssignmentRepository implements AssignmentRepository {
             .param(chatId)
             .param(linkId)
             .query(new AssignmentMapper()).list();
-        if (!list.isEmpty()) {
-            return list.get(0);
-        } else {
-            return null;
-        }
+        return list.isEmpty() ? null : list.get(0);
     }
 
     @Transactional
