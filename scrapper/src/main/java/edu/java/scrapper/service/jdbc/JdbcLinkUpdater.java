@@ -1,11 +1,11 @@
 package edu.java.scrapper.service.jdbc;
 
 import edu.java.dto.LinkUpdate;
-import edu.java.scrapper.domain.AssignmentRepository;
-import edu.java.scrapper.domain.LinkRepository;
 import edu.java.scrapper.domain.data.GitHubData;
 import edu.java.scrapper.domain.data.StackOverflowData;
 import edu.java.scrapper.domain.dto.Link;
+import edu.java.scrapper.domain.jdbc.JdbcAssignmentRepository;
+import edu.java.scrapper.domain.jdbc.JdbcLinkRepository;
 import edu.java.scrapper.service.LinkUpdater;
 import edu.java.scrapper.service.handlers.GitHubHandler;
 import edu.java.scrapper.service.handlers.LinkHandler;
@@ -13,25 +13,28 @@ import edu.java.scrapper.service.handlers.StackOverflowHandler;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
-@Service
 public class JdbcLinkUpdater implements LinkUpdater {
 
-    @Autowired
-    @Qualifier("jdbcLinkRepository")
-    private LinkRepository linkRepository;
-    @Autowired
-    @Qualifier("jdbcAssignmentRepository")
-    private AssignmentRepository assignmentRepository;
-    @Autowired
-    private LinkHandler linkHandler;
-    @Autowired
-    private GitHubHandler gitHubHandler;
-    @Autowired
-    private StackOverflowHandler stackOverflowHandler;
+    private final JdbcLinkRepository linkRepository;
+    private final JdbcAssignmentRepository assignmentRepository;
+    private final LinkHandler linkHandler;
+    private final GitHubHandler gitHubHandler;
+    private final StackOverflowHandler stackOverflowHandler;
+
+    public JdbcLinkUpdater(
+        JdbcLinkRepository linkRepository,
+        JdbcAssignmentRepository assignmentRepository,
+        LinkHandler linkHandler,
+        GitHubHandler gitHubHandler,
+        StackOverflowHandler stackOverflowHandler
+    ) {
+        this.linkRepository = linkRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.linkHandler = linkHandler;
+        this.gitHubHandler = gitHubHandler;
+        this.stackOverflowHandler = stackOverflowHandler;
+    }
 
     @Override
     public List<Link> getLinks(int count) {

@@ -1,28 +1,28 @@
 package edu.java.scrapper.service.jooq;
 
 import edu.java.dto.StateResponse;
-import edu.java.scrapper.domain.AssignmentRepository;
-import edu.java.scrapper.domain.ChatRepository;
-import edu.java.scrapper.domain.LinkRepository;
 import edu.java.scrapper.domain.dto.Assignment;
+import edu.java.scrapper.domain.jooq.JooqAssignmentRepository;
+import edu.java.scrapper.domain.jooq.JooqChatRepository;
+import edu.java.scrapper.domain.jooq.JooqLinkRepository;
 import edu.java.scrapper.service.ChatService;
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
-@Service
 public class JooqChatService implements ChatService {
 
-    @Autowired
-    @Qualifier("jooqChatRepository")
-    private ChatRepository chatRepository;
-    @Autowired
-    @Qualifier("jooqLinkRepository")
-    private LinkRepository linkRepository;
-    @Autowired
-    @Qualifier("jooqAssignmentRepository")
-    private AssignmentRepository assignmentRepository;
+    private final JooqChatRepository chatRepository;
+    private final JooqLinkRepository linkRepository;
+    private final JooqAssignmentRepository assignmentRepository;
+
+    public JooqChatService(
+        JooqChatRepository chatRepository,
+        JooqLinkRepository linkRepository,
+        JooqAssignmentRepository assignmentRepository
+    ) {
+        this.chatRepository = chatRepository;
+        this.linkRepository = linkRepository;
+        this.assignmentRepository = assignmentRepository;
+    }
 
     @Override
     public boolean add(long chatId, String name) {
@@ -50,7 +50,11 @@ public class JooqChatService implements ChatService {
 
     @Override
     public StateResponse getState(long chatId) {
-        return new StateResponse(chatRepository.find(chatId).state());
+        var chat = chatRepository.find(chatId);
+        if (Objects.isNull(chat)) {
+            return new StateResponse("NONE");
+        }
+        return new StateResponse(chat.state());
     }
 
     @Override

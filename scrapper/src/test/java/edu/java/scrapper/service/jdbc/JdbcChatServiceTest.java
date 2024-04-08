@@ -1,15 +1,16 @@
 package edu.java.scrapper.service.jdbc;
 
 import edu.java.scrapper.IntegrationTest;
-import edu.java.scrapper.domain.AssignmentRepository;
-import edu.java.scrapper.domain.ChatRepository;
-import edu.java.scrapper.domain.LinkRepository;
+import edu.java.scrapper.domain.jdbc.JdbcAssignmentRepository;
+import edu.java.scrapper.domain.jdbc.JdbcChatRepository;
+import edu.java.scrapper.domain.jdbc.JdbcLinkRepository;
 import edu.java.scrapper.service.ChatService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -19,17 +20,18 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class JdbcChatServiceTest extends IntegrationTest {
 
     @Autowired
-    @Qualifier("jdbcChatService")
     private ChatService chatService;
     @Autowired
-    @Qualifier("jdbcChatRepository")
-    private ChatRepository chatRepository;
+    private JdbcChatRepository chatRepository;
     @Autowired
-    @Qualifier("jdbcLinkRepository")
-    private LinkRepository linkRepository;
+    private JdbcLinkRepository linkRepository;
     @Autowired
-    @Qualifier("jdbcAssignmentRepository")
-    private AssignmentRepository assignmentRepository;
+    private JdbcAssignmentRepository assignmentRepository;
+
+    @DynamicPropertySource
+    public static void setJooqAccessType(DynamicPropertyRegistry registry) {
+        registry.add("app.database-access-type", () -> "jdbc");
+    }
 
     @Test
     @Transactional
