@@ -1,14 +1,38 @@
 app:
   telegram-token: ${TELEGRAM_API_KEY}
+  retry:
+    max-attempts: 5
+    delay: 500
+    multiplier: 2
 
 spring:
   application:
     name: bot
   jackson:
     time-zone: UTC
+  cache:
+    cache-names:
+      - rate-limit-buckets-bot
+    caffeine:
+      spec: maximumSize=100000,expireAfterAccess=3600s
+
+bucket4j:
+  enabled: true
+  filters:
+    - cache-name: rate-limit-buckets-bot
+      url: /.*
+      http-response-body: "{ \"status\": 429, \"error\": \"Too Many Requests\", \"message\": \"You have exhausted your API Request Quota\" }"
+      rate-limits:
+          cache-key: "getRemoteAddr()"
+          bandwidths:
+            - capacity: 10
+              time: 1
+              unit: minutes
+              refill-speed: interval
 
 server:
   port: 8090
+  forward-headers-strategy: NATIVE
 
 logging:
   config: classpath:log4j2-plain.xml
@@ -16,3 +40,23 @@ logging:
 spring-doc:
   swagger-ui:
     path: /swagger-ui
+  default-produces-media-type: application/json
+
+kafka:
+  consumer:
+    bootstrapServers: localhost:29092
+    groupId: bot-distributor
+    autoOffsetReset: latest
+    maxPollIntervalMs: 300_000
+    enableAutoCommit: false
+    concurrency: 1
+    schemaRegistryUrl: 'http://localhost:28081'
+  producer:
+    bootstrapServers: localhost:29093
+    clientId: bot
+    acksMode: 0
+    deliveryTimeout: 60s
+    lingerMs: 12_000
+    batchSize: 100_000
+    maxInFlightPerConnection: 5
+    enableIdempotence: true

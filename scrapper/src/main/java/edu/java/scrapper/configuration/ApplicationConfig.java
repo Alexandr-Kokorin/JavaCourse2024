@@ -9,10 +9,21 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public record ApplicationConfig(
-    @Bean
-    @NotNull
-    Scheduler scheduler,
-    AccessType databaseAccessType
+    @Bean @NotNull Scheduler scheduler,
+    @NotNull AccessType databaseAccessType,
+    @NotNull ConnectType connectType,
+    @Bean @NotNull Retry retry
 ) {
-    public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) { }
+
+    public record Retry(
+        int maxAttempts,
+        long delay,
+        long multiplier
+    ) {}
+
+    public record Scheduler(
+        boolean enable,
+        @NotNull Duration interval,
+        @NotNull Duration forceCheckDelay
+    ) { }
 }

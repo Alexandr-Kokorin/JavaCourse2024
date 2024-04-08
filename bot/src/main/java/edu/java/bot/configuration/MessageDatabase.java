@@ -4,6 +4,7 @@ package edu.java.bot.configuration;
 public class MessageDatabase {
 
     public static String unidentifiedMessage = "То, что ты прислал, не моих рук дело, и во владениях моих такого нет!";
+    public static String errorMessage = "Извини, друг мой, но мой мозг сейчас не хочет работать, попробуй пожалуйста попозже.";
     public static String startMessagePart1 = """
             Приветствую!
 

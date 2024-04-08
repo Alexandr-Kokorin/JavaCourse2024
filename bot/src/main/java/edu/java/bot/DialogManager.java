@@ -28,7 +28,11 @@ public class DialogManager {
     }
 
     private List<String> sortCommand(long id, String message) {
-        DialogState state = getState(id);
+        var response = scrapperClient.getState(id);
+        if (response.getStatusCode().is5xxServerError()) {
+            return List.of(MessageDatabase.errorMessage);
+        }
+        DialogState state = DialogState.valueOf(response.getBody().state());
         if (state != DialogState.NONE) {
             return List.of(MessageDatabase.unidentifiedMessage);
         }
@@ -48,8 +52,12 @@ public class DialogManager {
     }
 
     private List<String> sortText(long id, String message) {
-        DialogState state = getState(id);
-        Command command =  switch (state) {
+        var response = scrapperClient.getState(id);
+        if (response.getStatusCode().is5xxServerError()) {
+            return List.of(MessageDatabase.errorMessage);
+        }
+        DialogState state = DialogState.valueOf(response.getBody().state());
+        Command command = switch (state) {
             case TRACK -> new Track(id, message, scrapperClient);
             case UNTRACK -> new Untrack(id, message, scrapperClient);
             default -> null;
@@ -59,15 +67,5 @@ public class DialogManager {
         } else {
             return command.execute();
         }
-    }
-
-    private DialogState getState(long id) {
-        DialogState state;
-        try {
-            state = DialogState.valueOf(scrapperClient.getState(id).getBody().state());
-        } catch (NullPointerException e) {
-            state = DialogState.NONE;
-        }
-        return state;
     }
 }
