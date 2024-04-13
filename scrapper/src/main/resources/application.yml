@@ -67,3 +67,32 @@ kafka:
   maxInFlightPerConnection: 5
   enableIdempotence: true
   schemaRegistryUrl: 'http://localhost:28081'
+
+management:
+  endpoints:
+    web:
+      base-path: /
+      path-mapping:
+        info: info
+        health: health
+        prometheus: metrics
+      exposure:
+        include: "health,info,prometheus"
+    jmx:
+      exposure:
+        include: "health,info,prometheus"
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true
+    prometheus:
+      enabled: true
+  server:
+    port: 8083
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}

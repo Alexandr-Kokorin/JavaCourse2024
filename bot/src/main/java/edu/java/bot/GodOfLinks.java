@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import edu.java.bot.configuration.ApplicationConfig;
+import edu.java.bot.metrics.MetricsHelper;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -26,6 +27,8 @@ public class GodOfLinks implements AutoCloseable, UpdatesListener {
     private ApplicationConfig config;
     @Autowired
     private DialogManager dialogManager;
+    @Autowired
+    private MetricsHelper metricsHelper;
 
     @PostConstruct
     public void start() {
@@ -77,6 +80,7 @@ public class GodOfLinks implements AutoCloseable, UpdatesListener {
             for (String text : list) {
                 bot.execute(new SendMessage(id, text));
             }
+            metricsHelper.buildCounter().increment();
         } catch (RuntimeException e) {
             LOGGER.error("Чат " + id + " не найден!");
         }
