@@ -53,7 +53,7 @@ jobs:
           context: .
           file: ./scrapper.Dockerfile
           push: true
-          tags: scrapper
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - id: jacoco

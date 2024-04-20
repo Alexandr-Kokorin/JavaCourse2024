@@ -52,7 +52,7 @@ jobs:
           context: .
           file: ./bot.Dockerfile
           push: true
-          tags: bot
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - id: jacoco
