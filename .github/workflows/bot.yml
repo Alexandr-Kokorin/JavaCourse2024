@@ -38,9 +38,9 @@ jobs:
 
       - name: Build the scrapper Docker image
         run: |
-          docker build . --tag ghcr.io/Alexandr-Kokorin/bot:latest
-          docker run ghcr.io/Alexandr-Kokorin/bot:latest
-          docker push ghcr.io/Alexandr-Kokorin/bot:latest
+          docker build . --tag ghcr.io/${{ github.actor }}/bot:latest
+          docker run ghcr.io/${{ github.actor }}/bot:latest
+          docker push ghcr.io/${{ github.actor }}/bot:latest
 
       - id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
