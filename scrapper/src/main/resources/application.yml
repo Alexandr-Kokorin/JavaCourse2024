@@ -16,7 +16,7 @@ spring:
   liquibase:
     enabled: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/scrapper
+    url: jdbc:postgresql://host.docker.internal:5432/scrapper
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -58,7 +58,7 @@ spring-doc:
   default-produces-media-type: application/json
 
 kafka:
-  bootstrapServers: localhost:29092
+  bootstrapServers: host.docker.internal:29092
   clientId: scrapper
   acksMode: all
   deliveryTimeout: 60s
@@ -66,7 +66,7 @@ kafka:
   batchSize: 100_000
   maxInFlightPerConnection: 5
   enableIdempotence: true
-  schemaRegistryUrl: 'http://localhost:28081'
+  schemaRegistryUrl: 'http://host.docker.internal:28081'
 
 management:
   endpoints:

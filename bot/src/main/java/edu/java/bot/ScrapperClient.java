@@ -25,7 +25,7 @@ public class ScrapperClient {
     private final RestClient restClient;
 
     public ScrapperClient() {
-        this.restClient = RestClient.builder().baseUrl("http://localhost:8080").build();
+        this.restClient = RestClient.builder().baseUrl("http://host.docker.internal:8080").build();
     }
 
     public ScrapperClient(String baseUrl) {
