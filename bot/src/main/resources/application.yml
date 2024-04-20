@@ -44,15 +44,15 @@ spring-doc:
 
 kafka:
   consumer:
-    bootstrapServers: host.docker.internal:29092
+    bootstrapServers: localhost:29092
     groupId: bot-distributor
     autoOffsetReset: latest
     maxPollIntervalMs: 300_000
     enableAutoCommit: false
     concurrency: 1
-    schemaRegistryUrl: 'http://host.docker.internal:28081'
+    schemaRegistryUrl: 'http://localhost:28081'
   producer:
-    bootstrapServers: host.docker.internal:29093
+    bootstrapServers: localhost:29093
     clientId: bot
     acksMode: 0
     deliveryTimeout: 60s
