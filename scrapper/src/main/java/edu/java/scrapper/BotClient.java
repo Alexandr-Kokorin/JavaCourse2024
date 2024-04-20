@@ -20,7 +20,7 @@ public class BotClient {
     private final RestClient restClient;
 
     public BotClient() {
-        this.restClient = RestClient.builder().baseUrl("http://host.docker.internal:8090").build();
+        this.restClient = RestClient.builder().baseUrl("http://localhost:8090").build();
     }
 
     public BotClient(String baseUrl) {
